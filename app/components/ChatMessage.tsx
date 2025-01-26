@@ -12,18 +12,18 @@ function ChatMessage({ sender, message, isOwnMessage }: ChatMessageProps) {
         <div className={`flex ${isSystemMessage
             ? "justify-center"
             : isOwnMessage
-                ? "justify-end"
-                : "justify-start"
+                ? "justify-start"
+                : "justify-end"
             } mb-3`}>
-            <div className="rounded-full bg-blue-500 w-6-h-6 mr-2"></div>
+            <div className="rounded-full bg-skey-500 w-6 h-6"></div>
             <div className={`max-w-xs px-4 py-2 rounded-lg 
             ${isSystemMessage
                     ? "bg-gray-800 text-white text-center text-xs"
                     : isOwnMessage
-                        ? "bg-blue-500 text-white"
+                        ? "bg-sky-500 text-white"
                         : "bg-gray-100 text-black"
                 } mb-3`}>
-                {!isSystemMessage && <p className="tex-sm font-bold">{sender}</p>}
+                {!isSystemMessage && <p className="tex-xs">{sender}</p>}
                 <p>{message}</p>
             </div>
         </div>

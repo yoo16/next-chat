@@ -1,15 +1,15 @@
 "use client";
 import ChatForm from "@/app/components/ChatForm";
 import { useEffect, useState } from 'react';
-import ChatMessage from "@/app/components/ChatMessage";
 import { socket } from "@/lib/socketClient";
+import { Message } from "@/app/interfaces/Message";
+import ChatList from "./components/ChatList";
+import JoinRoomForm from "./components/JoinRoomForm";
 
 export default function Home() {
     const [room, setRoom] = useState("");
     const [joined, setJoined] = useState(false);
-    const [messages, setMessages] = useState<
-        { sender: string, message: string }[]
-    >([]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [userName, setUserName] = useState("");
 
     useEffect(() => {
@@ -26,12 +26,15 @@ export default function Home() {
         };
     }, []);
 
-    const handleJoineRoom = () => {
+    const handleJoineRoom = (room: string, userName: string) => {
         if (room && userName) {
+            setRoom(room)
+            setUserName(userName)
             socket.emit("join-room", { room, username: userName })
             setJoined(true);
         }
     }
+
     const handleSendMessage = (message: string) => {
         const data = { room, message, sender: userName };
         console.log(data)
@@ -41,44 +44,15 @@ export default function Home() {
     return (
         <div className="flex mt-4 justify-center">
             {!joined ? (
-                <div>
-                    <h2>Join Room</h2>
-                    <div className="flex gap-y-2 w-full max-w-3xl mx-auto flex-col items-center">
-                        <input
-                            type="text"
-                            placeholder="Enter your username"
-                            value={userName}
-                            onChange={(e) => setUserName(e.target.value)}
-                            className="flex-1 px-4 py-2 border-gray-500 border rounded-lg"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Type room name"
-                            value={room}
-                            onChange={(e) => setRoom(e.target.value)}
-                            className="flex-1 px-4 py-2 border-gray-500 border rounded-lg"
-                        />
-                        <button
-                            onClick={handleJoineRoom}
-                            type="submit"
-                            className="rounded bg-sky-500 text-white px-4 py-2"
-                        >Join</button>
-                    </div>
-                </div>
+                <JoinRoomForm onJoin={handleJoineRoom} />
             ) : (
-                <div className="w-full max-w-3xl mx-auto">
+                <div className="container mx-auto">
                     <h1 className="mb-4 text-2xl font-bold">Room {room}</h1>
-                    <ChatForm onSendMessage={handleSendMessage} />
-                    <div className="h-full overflow-y-auto p-4">
-                        {messages.map((value, index) => (
-                            <ChatMessage
-                                key={index}
-                                sender={value.sender}
-                                message={value.message}
-                                isOwnMessage={value.sender === userName}
-                            />
-                        ))}
+                    <div className="text-sm">
+                        <span className="">{userName}</span>さん
                     </div>
+                    <ChatForm onSendMessage={handleSendMessage} />
+                    <ChatList messages={messages} userName={userName} />
                 </div>
             )}
         </div>
