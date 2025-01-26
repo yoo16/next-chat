@@ -17,6 +17,8 @@ app.prepare().then(() => {
     io.on("connection", (socket) => {
         console.log(`User connected: ${socket.id}`)
 
+        socket.emit("user-id", socket.id);
+
         socket.on("join-room", (data) => {
             socket.join(data.room);
             console.log(`User ${data.username} join room ${data.room}`);

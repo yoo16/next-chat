@@ -1,12 +1,13 @@
 import React from 'react'
 
 interface ChatMessageProps {
+    userId: string;
     sender: string;
     message: string;
     isOwnMessage: boolean;
 }
 
-function ChatMessage({ sender, message, isOwnMessage }: ChatMessageProps) {
+function ChatMessage({ userId, sender, message, isOwnMessage }: ChatMessageProps) {
     const isSystemMessage = sender === "system";
     return (
         <div className={`flex ${isSystemMessage
@@ -23,7 +24,7 @@ function ChatMessage({ sender, message, isOwnMessage }: ChatMessageProps) {
                         ? "bg-sky-500 text-white"
                         : "bg-gray-100 text-black"
                 } mb-3`}>
-                {!isSystemMessage && <p className="tex-xs">{sender}</p>}
+                {!isSystemMessage && <p className="tex-xs" data-user-id={userId}>{sender}</p>}
                 <p>{message}</p>
             </div>
         </div>

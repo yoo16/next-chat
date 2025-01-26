@@ -1,30 +1,38 @@
 "use client";
-import ChatForm from "@/app/components/ChatForm";
+
 import { useEffect, useState } from 'react';
+import ChatForm from "@/app/components/ChatForm";
 import { socket } from "@/lib/socketClient";
 import { Message } from "@/app/interfaces/Message";
-import ChatList from "./components/ChatList";
-import JoinRoomForm from "./components/JoinRoomForm";
+import ChatList from "@/app/components/ChatList";
+import JoinRoomForm from "@/app/components/JoinRoomForm";
 
 export default function Home() {
+    const [userId, setUserId] = useState("");
     const [room, setRoom] = useState("");
     const [joined, setJoined] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [userName, setUserName] = useState("");
 
     useEffect(() => {
+        // サーバーから socket.id を受信して保存
+        socket.on("user-id", (id) => {
+            setUserId(id);
+        });
+
         socket.on("message", (data) => {
             setMessages((prev) => [...prev, data])
         });
 
         socket.on("user_joined", (message) => {
-            setMessages((prev) => [...prev, { sender: "system", message }])
+            setMessages((prev) => [...prev, { userId, sender: "system", message }])
         });
         return () => {
+            socket.off("user-id");
             socket.off("user_joined");
             socket.off("message");
         };
-    }, []);
+    }, [userId]);
 
     const handleJoineRoom = (room: string, userName: string) => {
         if (room && userName) {
@@ -36,9 +44,9 @@ export default function Home() {
     }
 
     const handleSendMessage = (message: string) => {
-        const data = { room, message, sender: userName };
+        const data = { room, message, sender: userName, senderId: userId };
         console.log(data)
-        setMessages((prev) => [...prev, { sender: userName, message }])
+        setMessages((prev) => [...prev, { userId, sender: userName, message }])
         socket.emit("message", data);
     }
     return (
@@ -52,7 +60,7 @@ export default function Home() {
                         <span className="">{userName}</span>さん
                     </div>
                     <ChatForm onSendMessage={handleSendMessage} />
-                    <ChatList messages={messages} userName={userName} />
+                    <ChatList messages={messages} userId={userId} />
                 </div>
             )}
         </div>

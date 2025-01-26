@@ -4,18 +4,19 @@ import { Message } from '@/app/interfaces/Message';
 
 interface ChatListProps {
     messages: Message[];
-    userName: string;
+    userId: string;
 }
 
-function ChatList({ messages, userName }: ChatListProps) {
+function ChatList({ messages, userId }: ChatListProps) {
     return (
         <div className="h-full overflow-y-auto p-4">
             {messages.map((value, index) => (
                 <ChatMessage
                     key={index}
+                    userId={value.userId}
                     sender={value.sender}
                     message={value.message}
-                    isOwnMessage={value.sender === userName}
+                    isOwnMessage={value.userId === userId}
                 />
             ))}
         </div>
