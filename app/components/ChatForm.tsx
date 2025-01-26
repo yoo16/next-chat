@@ -1,11 +1,11 @@
 "use client";
 
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useState } from "react";
 
 const ChatForm = ({
     onSendMessage,
 }: {
-    onSendMessage: (message: string) => void
+    onSendMessage: (message: string) => void;
 }) => {
     const [message, setMessage] = useState("");
 
@@ -15,27 +15,32 @@ const ChatForm = ({
             onSendMessage(message);
             setMessage("");
         }
-        console.log("Submitted")
+        console.log("Submitted");
     }
 
     return (
-        <div>
-            <form onSubmit={handleSubmit} className="flex gap-2 mt-4" method="post">
+        <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+            <form
+                onSubmit={handleSubmit}
+                className="flex items-center gap-4"
+                method="post"
+            >
                 <input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     type="text"
-                    className="flex-1 px-4 border-gray-500 border-2 py-2 rounded-lg"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                     placeholder="Type your message here..."
                 />
                 <button
                     type="submit"
-                    className="rounded bg-sky-500 text-white px-4 py-2"
-                >Send
+                    className="px-4 py-2 text-white bg-sky-500 rounded-lg hover:bg-sky-600 transition duration-200"
+                >
+                    Send
                 </button>
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default ChatForm
+export default ChatForm;

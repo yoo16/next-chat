@@ -55,8 +55,8 @@ export default function Home() {
                 <JoinRoomForm onJoin={handleJoineRoom} />
             ) : (
                 <div className="container mx-auto">
-                    <h1 className="mb-4 text-2xl font-bold">Room {room}</h1>
-                    <div className="text-sm">
+                    <h1 className="mb-4 text-center text-2xl font-bold">Room {room}</h1>
+                    <div className="text-sm p-3">
                         <span className="">{userName}</span>さん
                     </div>
                     <ChatForm onSendMessage={handleSendMessage} />
