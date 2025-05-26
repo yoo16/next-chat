@@ -11,10 +11,9 @@ export default function ChatPage() {
     const { room } = useParams<{ room: string }>();
     const search = useSearchParams();
     const router = useRouter();
-    const sender =
-        search.get("sender") || localStorage.getItem("sender") || "";
-    const [userId, setUserId] = useState("");
+    const sender = search.get("sender");
     const [messages, setMessages] = useState<Message[]>([]);
+    const [clientId, setClientId] = useState<string>("");
 
     useEffect(() => {
         if (!sender) router.replace("/join");
@@ -22,19 +21,35 @@ export default function ChatPage() {
 
     useEffect(() => {
         socket.emit("join-room", { room, sender });
-        socket.on("user-id", setUserId);
-        socket.on("message", (data: Message) =>
-            setMessages((prev) => [...prev, data])
-        );
-        socket.on("user-joined", (data: Message) =>
-            setMessages((prev) => [...prev, data])
-        );
+
+        socket.on("client-id", (data) => {
+            console.log("Received client ID:", data);
+            setClientId(data.clientId);
+        });
+
+        socket.on("user-joined", (data) => {
+            setMessages(prev => [...prev, data]);
+        });
+
+        socket.on("message", (data) => {
+            console.log("Received message:", data);
+            setMessages(prev => [...prev, data]);
+        });
+
+        socket.on("image", (data) => {
+            console.log("Received image:", data);
+            setMessages(prev => [...prev, data]);
+        });
+
+        // クリーンアップ
         return () => {
-            socket.off("user-id");
-            socket.off("message");
             socket.off("user-joined");
+            socket.off("client-id");
+            socket.off("message");
+            socket.off("image");
         };
     }, [room, sender]);
+
 
     // レンダリング後、親コンテナの高さが確定してから末尾までスクロール
     useEffect(() => {
@@ -47,25 +62,39 @@ export default function ChatPage() {
 
     const handleSend = (text: string) => {
         if (!text.trim()) return;
-        setMessages((prev) => [...prev, { text, sender, userId }]);
-        socket.emit("message", text);
+        const message = { text, sender, clientId, room };
+        // setMessages([...messages, message]);
+        socket.emit("message", message);
     };
+
+    const handleSendImage = (imageFile: File) => {
+        if (imageFile) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const buffer = reader.result as ArrayBuffer;
+                const message = { buffer, sender, clientId, room };
+                console.log("Sending image:", message);
+                socket.emit("image", message);
+            };
+            reader.readAsArrayBuffer(imageFile);
+        }
+    }
 
     return (
         <div>
             <div className="fixed top-0 left-0 w-full bg-white z-10">
-                <header className="p-4 text-center">
-                    <h1 className="text-2xl font-bold">Room {room}</h1>
-                    <div className="text-sm mt-1">{sender} さん</div>
+                <header className="p-4">
+                    <div className="text-sm mt-1">
+                        <span className="font-bold p-3">Room {room}</span>
+                        <span>{sender} さん</span>
+                        <span>({clientId})</span>
+                    </div>
                 </header>
-                <ChatForm onSend={handleSend} />
+                <ChatForm onSend={handleSend} onSendImage={handleSendImage} />
             </div>
 
-            {/* スクロール領域：window 全体をスクロールさせるならここは余白だけ */}
-            <div
-                className="pt-[128px] pb-[64px] px-4 space-y-2"
-            >
-                <ChatList messages={messages} userId={userId} />
+            <div className="pt-[128px] pb-[64px] px-4 space-y-2">
+                <ChatList messages={messages} clientId={clientId} />
             </div>
         </div>
     );

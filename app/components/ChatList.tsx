@@ -4,17 +4,17 @@ import { Message } from '@/app/interfaces/Message';
 
 interface ChatListProps {
     messages: Message[];
-    userId: string;
+    clientId: string;
 }
 
-function ChatList({ messages, userId }: ChatListProps) {
+function ChatList({ messages, clientId }: ChatListProps) {
     return (
         <div className="h-full overflow-y-auto p-4">
             {messages.map((message, index) => (
                 <ChatMessage
                     key={index}
                     message={message}
-                    userId={userId}
+                    clientId={clientId}
                 />
             ))}
         </div>
