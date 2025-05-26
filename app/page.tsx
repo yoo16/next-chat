@@ -49,6 +49,7 @@ export default function Home() {
         setMessages((prev) => [...prev, { userId, sender: userName, message }])
         socket.emit("message", data);
     }
+
     return (
         <div className="flex mt-4 justify-center">
             {!joined ? (
