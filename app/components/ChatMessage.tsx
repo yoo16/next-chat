@@ -1,14 +1,14 @@
+import { Message } from '@/app/interfaces/Message';
 import React from 'react'
 
 interface ChatMessageProps {
+    message: Message;
     userId: string;
-    sender: string;
-    message: string;
-    isOwnMessage: boolean;
 }
 
-function ChatMessage({ userId, sender, message, isOwnMessage }: ChatMessageProps) {
-    const isSystemMessage = sender === "system";
+function ChatMessage({ message, userId }: ChatMessageProps) {
+    const isSystemMessage = message.sender === "system";
+    const isOwnMessage = message.userId === userId;
     return (
         <div className={`flex ${isSystemMessage
             ? "justify-center"
@@ -21,11 +21,11 @@ function ChatMessage({ userId, sender, message, isOwnMessage }: ChatMessageProps
             ${isSystemMessage
                     ? "bg-gray-800 text-white text-center text-xs"
                     : isOwnMessage
-                        ? "bg-sky-500 text-white"
+                        ? "bg-green-500 text-white"
                         : "bg-gray-100 text-black"
                 } mb-3`}>
-                {!isSystemMessage && <p className="tex-xs" data-user-id={userId}>{sender}</p>}
-                <p>{message}</p>
+                {!isSystemMessage && <p className="tex-xs" data-user-id={message.userId}>{message.sender}</p>}
+                <p>{message.text}</p>
             </div>
         </div>
     )

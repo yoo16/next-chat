@@ -1,5 +1,6 @@
 export interface Message {
-    userId: string;
+    room?: string;
+    userId?: string;
+    text: string;
     sender: string;
-    message: string;
 }

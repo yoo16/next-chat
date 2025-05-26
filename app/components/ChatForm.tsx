@@ -3,16 +3,20 @@
 import React, { FormEvent, useState } from "react";
 
 const ChatForm = ({
-    onSendMessage,
+    onSend,
 }: {
-    onSendMessage: (message: string) => void;
+    onSend: (message: string) => void;
 }) => {
     const [message, setMessage] = useState("");
+
+    function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
+        setMessage(e.target.value);
+    }
 
     function handleSubmit(e: FormEvent): void {
         e.preventDefault();
         if (message.trim() !== "") {
-            onSendMessage(message);
+            onSend(message);
             setMessage("");
         }
         console.log("Submitted");
@@ -27,7 +31,7 @@ const ChatForm = ({
             >
                 <input
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={handleChange}
                     type="text"
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                     placeholder="Type your message here..."
