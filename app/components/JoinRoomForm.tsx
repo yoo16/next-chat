@@ -1,58 +1,52 @@
 import React, { useState } from "react";
 
-interface JoinRoomFormProps {
+interface Props {
     onJoin: (username: string, room: string) => void;
 }
 
-function JoinRoomForm({ onJoin }: JoinRoomFormProps) {
-    const [errorMessage, setErrorMessage] = useState("");
+export default function JoinRoomForm({ onJoin }: Props) {
     const [username, setUsername] = useState("");
-    const [room, setRoom] = useState("A"); // 初期値は "A"
+    const [room, setRoom] = useState("A");
+    const [error, setError] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (username && room) {
-            onJoin(room, username);
-        } else {
-            setErrorMessage("Please, enter username");
+        if (!username.trim()) {
+            setError("ユーザー名を入力してください");
+            return;
         }
+        setError("");
+        onJoin(username.trim(), room);
     };
 
     return (
-        <div className="container mx-auto shadow-lg p-6 max-w-md">
-            <h2 className="p-5 text-2xl text-center font-bold">Next Chat</h2>
-            <form onSubmit={handleSubmit} className="flex gap-y-2 w-full max-w-3xl mx-auto flex-col">
+        <div className="container mx-auto p-6 max-w-md shadow-lg">
+            <h2 className="text-2xl font-bold mb-4 text-center">Next Chat</h2>
+            <form onSubmit={submit} className="flex flex-col gap-4">
                 <input
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder="ユーザー名"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="flex-1 px-4 py-2 border-gray-300 border rounded-lg"
+                    onChange={e => setUsername(e.currentTarget.value)}
+                    className="px-4 py-2 border rounded"
                 />
                 <select
                     value={room}
-                    onChange={(e) => setRoom(e.target.value)}
-                    className="flex-1 px-4 py-2 border-gray-300 border rounded-lg"
+                    onChange={e => setRoom(e.currentTarget.value)}
+                    className="px-4 py-2 border rounded"
                 >
                     <option value="A">Room A</option>
                     <option value="B">Room B</option>
                     <option value="C">Room C</option>
                 </select>
-
-                {errorMessage &&
-                    <div className="py-2 px-4 text-sm bg-red-200 text-red-600 rounded-lg">
-                        {errorMessage}
-                    </div>
-                }
+                {error && <div className="text-red-600">{error}</div>}
                 <button
                     type="submit"
-                    className="mt-2 rounded bg-sky-500 text-white px-4 py-2"
+                    className="bg-sky-500 text-white px-4 py-2 rounded"
                 >
                     Join
                 </button>
             </form>
         </div>
     );
-};
-
-export default JoinRoomForm;
+}

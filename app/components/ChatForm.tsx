@@ -8,7 +8,7 @@ type ChatFormProps = {
 };
 
 const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
-    const [message, setMessage] = useState("");
+    const [text, setText] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
 
@@ -16,7 +16,7 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
-        setMessage(e.target.value);
+        setText(e.target.value);
     }
 
     function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -29,23 +29,25 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
     function handleSubmit(e: FormEvent) {
         e.preventDefault();
 
-        if (message.trim()) {
-            onSend(message.trim());
-            setMessage("");
+        if (text.trim()) {
+            // テキスト送信
+            onSend(text.trim());
+            // テキスト入力をクリア
+            setText("");
         }
 
         if (image) {
+            // 画像送信
             onSendImage(image);
-            // プレビュー URL を解放
+            // 画像のプレビューをクリア
             if (preview) {
                 URL.revokeObjectURL(preview);
                 setPreview(null);
-            }
-            setImage(null);
-
-            // ★ファイル入力をクリア！
-            if (fileInputRef.current) {
-                fileInputRef.current.value = "";
+                setImage(null);
+                // ファイル入力をクリア
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                }
             }
         }
     }
@@ -55,7 +57,7 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
             <form onSubmit={handleSubmit} className="space-y-3">
                 <div className="flex items-center gap-4">
                     <input
-                        value={message}
+                        value={text}
                         onChange={handleChange}
                         type="text"
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
@@ -69,7 +71,7 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
                     </button>
                     <label className="px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
                         <input
-                            ref={fileInputRef}            // ← here
+                            ref={fileInputRef}
                             type="file"
                             accept="image/*"
                             className="hidden"

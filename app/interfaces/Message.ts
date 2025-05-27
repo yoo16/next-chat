@@ -4,4 +4,5 @@ export interface Message {
     text: string;
     buffer?: ArrayBuffer;
     sender: string;
+    date?: string;
 }
