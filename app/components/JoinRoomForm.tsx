@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { rooms, RoomOption } from '@/app/data/rooms'
 
 interface Props {
     onJoin: (username: string, room: string) => void;
@@ -6,17 +7,17 @@ interface Props {
 
 export default function JoinRoomForm({ onJoin }: Props) {
     const [username, setUsername] = useState("");
-    const [room, setRoom] = useState("A");
+    const [room, setRoom] = useState(rooms[0].value);
     const [error, setError] = useState("");
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!username.trim()) {
+        if (!username) {
             setError("ユーザー名を入力してください");
             return;
         }
+        onJoin(username, room);
         setError("");
-        onJoin(username.trim(), room);
     };
 
     return (
@@ -35,9 +36,11 @@ export default function JoinRoomForm({ onJoin }: Props) {
                     onChange={e => setRoom(e.currentTarget.value)}
                     className="px-4 py-2 border rounded"
                 >
-                    <option value="A">Room A</option>
-                    <option value="B">Room B</option>
-                    <option value="C">Room C</option>
+                    {rooms.map((r: RoomOption) => (
+                        <option key={r.value} value={r.value}>
+                            {r.label}
+                        </option>
+                    ))}
                 </select>
                 {error && <div className="text-red-600">{error}</div>}
                 <button

@@ -2,19 +2,19 @@ import React from 'react'
 import ChatMessage from '@/app/components/ChatMessage'
 import { Message } from '@/app/interfaces/Message';
 
-interface ChatListProps {
+interface Props {
     messages: Message[];
-    clientId: string;
+    userId: string;
 }
 
-function ChatList({ messages, clientId }: ChatListProps) {
+function ChatList({ messages, userId }: Props) {
     return (
         <div className="h-full overflow-y-auto p-4">
             {messages.map((message, index) => (
                 <ChatMessage
                     key={index}
                     message={message}
-                    clientId={clientId}
+                    userId={userId}
                 />
             ))}
         </div>

@@ -53,7 +53,7 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
     }
 
     return (
-        <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+        <div className="p-4 rounded-lg shadow-md">
             <form onSubmit={handleSubmit} className="space-y-3">
                 <div className="flex items-center gap-4">
                     <input
