@@ -48,7 +48,7 @@ export default function RegisterForm() {
         localStorage.setItem("next-chat-sender", name);
 
         // チャット画面にリダイレクト
-        router.push(`/chat?sender=${encodeURIComponent(name)}`);
+        router.push(`/chat`);
     };
 
     return (

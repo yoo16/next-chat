@@ -79,6 +79,7 @@ export default function ChatPage() {
     }, [socket, room, sender]);
 
     useEffect(() => {
+        if (messages.length === 0) return;
         window.scrollTo({
             top: document.documentElement.scrollHeight,
             behavior: "smooth",
@@ -164,7 +165,7 @@ export default function ChatPage() {
     };
 
     // token がなければ JoinRoomForm を表示
-    if (!token) {
+    if (!token || !userId || !room) {
         return (
             <div className="min-h-screen bg-gray-50 py-10">
                 <JoinRoomForm onJoin={handleJoinRoom} error={error} />
