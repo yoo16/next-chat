@@ -52,13 +52,19 @@ export default function ChatPage() {
 
     useEffect(() => {
         if (!socket || !room) return;
-        socket.emit("get-history", { room });
-        socket.on("history", (msgs: Message[]) => {
-            setMessages(msgs);
-        });
-        return () => {
-            socket.off("history");
-        };
+        setMessages([
+            { text: "ようこそ！チャットを始めましょう。", room: "A", userId: "1", sender: "test" },
+            { text: "こんにちは", room: "A", userId: "2", sender: "test" },
+            { text: "げんきですか？", room: "A", userId: "2", sender: "yoo" },
+            { text: "げんきです", room: "A", userId: "3", sender: "yse" },
+        ]);
+        // socket.emit("get-history", { room });
+        // socket.on("history", (msgs: Message[]) => {
+        //     setMessages(msgs);
+        // });
+        // return () => {
+        //     socket.off("history");
+        // };
     }, [socket, room]);
 
     // room / sender が決まってソケットが準備できたら join してイベント登録
