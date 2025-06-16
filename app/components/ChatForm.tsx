@@ -26,6 +26,16 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
         setPreview(URL.createObjectURL(file));
     }
 
+    function handleCancelImage() {
+        if (!preview) return;
+        URL.revokeObjectURL(preview);
+        setPreview(null);
+        setImage(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    }
+
     function handleSubmit(e: FormEvent) {
         e.preventDefault();
 
@@ -82,14 +92,24 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
                 </div>
 
                 {preview && (
-                    <Image
-                        src={preview}
-                        alt="preview"
-                        className="w-16 h-16 object-cover rounded"
-                        width={64}
-                        height={64}
-                    />
+                    <div className="flex items-center gap-2">
+                        <Image
+                            src={preview}
+                            alt="preview"
+                            className="w-16 h-16 object-cover rounded"
+                            width={128}
+                            height={128}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleCancelImage}
+                            className="text-sm text-red-500 px-2 py-1"
+                        >
+                            ✖
+                        </button>
+                    </div>
                 )}
+
             </form>
         </div>
     );
