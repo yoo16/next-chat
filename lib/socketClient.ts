@@ -12,6 +12,7 @@ export function getSocket(sender: string): Socket {
     if (!socket) {
         socket = io(SOCKET_URL!, {
             auth: { sender },
+            withCredentials: true,
             autoConnect: false,
         });
     }

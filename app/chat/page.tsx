@@ -175,8 +175,12 @@ export default function ChatPage() {
 
     return (
         <div>
-            <div className="fixed top-0 left-0 w-full bg-white z-10">
-                <header className="p-4 text-sm flex justify-between items-center">
+            <div className=" pb-[128px] px-4 space-y-2">
+                <ChatList messages={messages} userId={userId} />
+            </div>
+
+            <div className="fixed bottom-0 left-0 w-full bg-white z-10">
+                <header className="px-4 text-sm flex justify-between items-center">
                     <div>
                         <strong>Room {room}</strong> ｜ {sender} ({userId})
                     </div>
@@ -188,9 +192,6 @@ export default function ChatPage() {
                     </button>
                 </header>
                 <ChatForm onSend={handleSend} onSendImage={handleSendImage} />
-            </div>
-            <div className="pt-[128px] pb-[64px] px-4 space-y-2">
-                <ChatList messages={messages} userId={userId} />
             </div>
         </div>
     );
