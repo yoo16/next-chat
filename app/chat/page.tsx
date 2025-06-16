@@ -134,7 +134,11 @@ export default function ChatPage() {
             setToken(data.token);
             setUserId(data.userId);
         } catch (err) {
-            console.error("Error joining room:", err);
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError(String(err));
+            }
         }
     };
 
