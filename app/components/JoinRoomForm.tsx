@@ -3,21 +3,20 @@ import { rooms, RoomOption } from '@/app/data/rooms'
 
 interface Props {
     onJoin: (username: string, room: string) => void;
+    error?: string;
 }
 
-export default function JoinRoomForm({ onJoin }: Props) {
+export default function JoinRoomForm({ onJoin, error }: Props) {
     const [username, setUsername] = useState("");
     const [room, setRoom] = useState(rooms[0].value);
-    const [error, setError] = useState("");
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!username) {
-            setError("ユーザー名を入力してください");
+            error = "ユーザー名を入力してください";
             return;
         }
         onJoin(username, room);
-        setError("");
     };
 
     return (
