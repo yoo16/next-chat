@@ -101,7 +101,8 @@ export default function ChatPage() {
                 return;
             }
 
-            // localStorage.setItem("next-chat-token", data.token);
+            // ローカルストレージに保存
+            localStorage.setItem("next-chat-user-id", data.userId);
             localStorage.setItem("next-chat-token", data.token);
             localStorage.setItem("next-chat-sender", u);
             localStorage.setItem("next-chat-room", r);
@@ -116,7 +117,7 @@ export default function ChatPage() {
 
     // メッセージ送信
     const handleSend = (text: string) => {
-        const message = { text, room, userId, sender };
+        const message = { text, room, userId, sender, token };
         socket?.emit("message", message);
     };
 
@@ -125,10 +126,33 @@ export default function ChatPage() {
         const reader = new FileReader();
         reader.onload = () => {
             const buffer = reader.result as ArrayBuffer;
-            const message = { buffer, room, userId, sender };
+            const message = { buffer, room, userId, sender, token };
             socket?.emit("image", message);
         };
         reader.readAsArrayBuffer(file);
+    };
+
+    const handleLogout = () => {
+        if (!confirm("ログアウトしますか？")) {
+            return;
+        }
+        // ローカルストレージ削除
+        localStorage.removeItem("next-chat-token");
+        localStorage.removeItem("next-chat-sender");
+        localStorage.removeItem("next-chat-room");
+
+        // 状態のリセット
+        setToken("");
+        setSender("");
+        setRoom("");
+        setUserId("");
+        setMessages([]);
+        setSocket(null);
+
+        // ソケット切断
+        if (socket) {
+            socket.disconnect();
+        }
     };
 
     // token がなければ JoinRoomForm を表示
@@ -141,8 +165,16 @@ export default function ChatPage() {
     return (
         <div>
             <div className="fixed top-0 left-0 w-full bg-white z-10">
-                <header className="p-4 text-sm">
-                    <strong>Room {room}</strong> ｜ {sender} ({userId})
+                <header className="p-4 text-sm flex justify-between items-center">
+                    <div>
+                        <strong>Room {room}</strong> ｜ {sender} ({userId})
+                    </div>
+                    <button
+                        className="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600"
+                        onClick={handleLogout}
+                    >
+                        ログアウト
+                    </button>
                 </header>
                 <ChatForm onSend={handleSend} onSendImage={handleSendImage} />
             </div>
