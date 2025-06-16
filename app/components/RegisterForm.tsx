@@ -24,55 +24,64 @@ export default function RegisterForm() {
             }),
         });
 
-        const data = await res.json();
-
         if (!res.ok) {
-            setError(data.error || "登録に失敗しました");
+            setError("登録に失敗しました");
             return;
         }
 
+        const data = await res.json();
+        if (!data.userId || !data.token) {
+            setError("登録に失敗しました");
+            return;
+        }
+
+        // ローカルストレージにユーザー情報を保存
+        localStorage.setItem("next-chat-user-id", data.userId);
         localStorage.setItem("next-chat-token", data.token);
         localStorage.setItem("next-chat-sender", name);
 
+        // チャット画面にリダイレクト
         router.push(`/chat?sender=${encodeURIComponent(name)}`);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded">
-            <h1 className="text-2xl font-bold mb-4">ユーザー登録</h1>
+        <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded">
+            <form onSubmit={handleSubmit}>
+                <h1 className="text-center text-2xl font-bold mb-4">ユーザー登録</h1>
 
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+                {error && <p className="text-red-500 mb-4">{error}</p>}
 
-            <label className="block mb-2 text-sm">ユーザーID</label>
-            <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-                className="w-full border px-3 py-2 mb-4 rounded"
-            />
+                <label className="block mb-2 text-sm">ユーザーID</label>
+                <input
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    required
+                    className="w-full border px-3 py-2 mb-4 rounded"
+                />
 
-            <label className="block mb-2 text-sm">表示名</label>
-            <input
-                type="text"
-                value={displayName}
-                onChange={e => setDisplayName(e.target.value)}
-                className="w-full border px-3 py-2 mb-4 rounded"
-            />
+                <label className="block mb-2 text-sm">表示名</label>
+                <input
+                    type="text"
+                    value={displayName}
+                    onChange={e => setDisplayName(e.target.value)}
+                    className="w-full border px-3 py-2 mb-4 rounded"
+                />
 
-            <label className="block mb-2 text-sm">パスワード</label>
-            <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="w-full border px-3 py-2 mb-6 rounded"
-            />
+                <label className="block mb-2 text-sm">パスワード</label>
+                <input
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="w-full border px-3 py-2 mb-6 rounded"
+                />
 
-            <button type="submit" className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600">
-                登録する
-            </button>
-        </form>
+                <button type="submit" className="bg-blue-500 text-white w-full py-2 rounded hover:bg-blue-600">
+                    登録する
+                </button>
+            </form>
+        </div>
     );
 }

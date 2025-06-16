@@ -23,11 +23,11 @@ npm run dev
 ```
 
 ```bash
-npm install prisma -D
-npm install @prisma/client
+npx prisma migrate dev --name init
 ```
 
+### Prisma Client
+
 ```bash
-npx prisma init
-npx prisma migrate dev --name init
+npx prisma studio
 ```

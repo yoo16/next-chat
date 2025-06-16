@@ -2,25 +2,26 @@ import React, { useState } from "react";
 import { rooms, RoomOption } from '@/app/data/rooms'
 
 interface Props {
-    onJoin: (username: string, room: string) => void;
+    onJoin: (username: string, password:string, room: string) => void;
     error?: string;
 }
 
 export default function JoinRoomForm({ onJoin, error }: Props) {
     const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [room, setRoom] = useState(rooms[0].value);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!username) {
-            error = "ユーザー名を入力してください";
+        if (!username || password) {
+            error = "ユーザー名とパスワードを入力してください";
             return;
         }
-        onJoin(username, room);
+        onJoin(username, password, room);
     };
 
     return (
-        <div className="container mx-auto p-6 max-w-md shadow-lg">
+        <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded">
             <h2 className="text-2xl font-bold mb-4 text-center">Next Chat</h2>
             <form onSubmit={submit} className="flex flex-col gap-4">
                 <input
@@ -28,6 +29,13 @@ export default function JoinRoomForm({ onJoin, error }: Props) {
                     placeholder="ユーザー名"
                     value={username}
                     onChange={e => setUsername(e.currentTarget.value)}
+                    className="px-4 py-2 border rounded"
+                />
+                <input
+                    type="password"
+                    placeholder="パスワード"
+                    value={password}
+                    onChange={e => setPassword(e.currentTarget.value)}
                     className="px-4 py-2 border rounded"
                 />
                 <select

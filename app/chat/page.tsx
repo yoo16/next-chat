@@ -1,22 +1,21 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { getSocket } from "@/lib/socketClient";
 import { useSearchParams } from "next/navigation";
 import JoinRoomForm from "@/app/components/JoinRoomForm";
 import ChatForm from "@/app/components/ChatForm";
 import ChatList from "@/app/components/ChatList";
 import { Message } from "@/app/interfaces/Message";
-import e from "cors";
 import { AuthUser } from "../interfaces/User";
+import { Socket } from "socket.io-client";
 
 export default function ChatPage() {
     const search = useSearchParams();
 
     const initialSender = search.get("sender") || "";
     const initialRoom = search.get("room") || "";
-
-    const [socket, setSocket] = useState<any>(null);
+    const [socket, setSocket] = useState<Socket | null>(null);
     const [sender, setSender] = useState<string>(initialSender);
     const [room, setRoom] = useState<string>(initialRoom);
     const [token, setToken] = useState<string>("");
@@ -36,7 +35,7 @@ export default function ChatPage() {
 
     useEffect(() => {
         if (!sender || !token) return;
-
+        // ソケットの初期化
         const newSocket = getSocket(sender);
         newSocket.auth = { sender, token };
         newSocket.connect();
@@ -52,16 +51,21 @@ export default function ChatPage() {
     useEffect(() => {
         if (!socket || !room) return;
 
+        // ルームに参加
         socket.emit("join-room", { room, sender });
 
+        // 認証受信
         socket.on("auth", (data: AuthUser) => {
             setToken(data.token);
             setUserId(data.userId);
             localStorage.setItem("next-chat-token", data.token);
         });
 
+        // ユーザー参加受信
         socket.on("user-joined", (msg: Message) => setMessages(m => [...m, msg]));
+        // メッセージ受信
         socket.on("message", (msg: Message) => setMessages(m => [...m, msg]));
+        // 画像の受信
         socket.on("image", (msg: Message) => setMessages(m => [...m, msg]));
 
         return () => {
@@ -70,7 +74,7 @@ export default function ChatPage() {
             socket.off("message");
             socket.off("image");
         };
-    }, [socket, room]);
+    }, [socket, room, sender]);
 
     useEffect(() => {
         window.scrollTo({
@@ -79,14 +83,14 @@ export default function ChatPage() {
         });
     }, [messages]);
 
-    const handleJoinRoom = async (u: string, r: string) => {
-        setSender(u);
-        setRoom(r);
+    const handleJoinRoom = async (sender: string, password: string, room: string) => {
+        setSender(sender);
+        setRoom(room);
 
         try {
             const res = await fetch("/api/join", {
                 method: "POST",
-                body: JSON.stringify({ sender: u, room: r }),
+                body: JSON.stringify({ sender, password, room }),
                 headers: { "Content-Type": "application/json" }
             });
 
@@ -104,8 +108,8 @@ export default function ChatPage() {
             // ローカルストレージに保存
             localStorage.setItem("next-chat-user-id", data.userId);
             localStorage.setItem("next-chat-token", data.token);
-            localStorage.setItem("next-chat-sender", u);
-            localStorage.setItem("next-chat-room", r);
+            localStorage.setItem("next-chat-sender", sender);
+            localStorage.setItem("next-chat-room", room);
 
             // 状態を更新
             setToken(data.token);
@@ -158,7 +162,9 @@ export default function ChatPage() {
     // token がなければ JoinRoomForm を表示
     if (!token) {
         return (
-            <JoinRoomForm onJoin={handleJoinRoom} error={error} />
+            <div className="min-h-screen bg-gray-50 py-10">
+                <JoinRoomForm onJoin={handleJoinRoom} error={error} />
+            </div>
         );
     }
 

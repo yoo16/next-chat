@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import NavBar from "./components/NavBar";
 
 export const metadata: Metadata = {
   title: "Next Chat",
@@ -14,7 +15,8 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-          {children}
+        <NavBar />
+        {children}
       </body>
     </html>
   );

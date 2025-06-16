@@ -15,11 +15,6 @@ export function getSocket(sender: string): Socket {
             autoConnect: false,
         });
     }
-    // sender が変わるたびにハンドシェイクし直したいなら disconnect → connect。
-    if (socket && (socket.auth as { sender: string }).sender !== sender) {
-        socket.auth = { sender };
-        socket.disconnect();
-    }
     socket.connect();
     return socket;
 }
