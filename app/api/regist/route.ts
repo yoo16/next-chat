@@ -7,20 +7,12 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function POST(req: Request) {
-    const { sender, password, displayName } = await req.json();
-
-    if (!sender || sender.trim() === "") {
-        return NextResponse.json({ error: "Sender required" }, { status: 400 });
-    }
-
-    if (!password || password.length < 6) {
-        return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
-    }
+    const { name, password, displayName } = await req.json();
 
     // ユーザー名の重複チェック
-    const existing = await prisma.user.findUnique({ where: { name: sender } });
+    const existing = await prisma.user.findUnique({ where: { name } });
     if (existing) {
-        return NextResponse.json({ error: "User already exists" }, { status: 409 });
+        return NextResponse.json({ error: "そのユーザはすでに登録されています" });
     }
 
     // パスワードのハッシュ化
@@ -29,11 +21,13 @@ export async function POST(req: Request) {
     // users テーブルに新しいユーザーを作成
     const user = await prisma.user.create({
         data: {
-            name: sender,
+            name: name,
             password: hashedPassword,
             displayName: displayName,
         },
     });
+
+    console.log("New user created:", user);
 
     const token = jwt.sign(
         { userId: user.id, sender: user.name },

@@ -2,22 +2,22 @@ import React, { useState } from "react";
 import { rooms, RoomOption } from '@/app/data/rooms'
 
 interface Props {
-    onJoin: (username: string, password:string, room: string) => void;
+    onJoin: (name: string, password:string, room: string) => void;
     error?: string;
 }
 
 export default function JoinRoomForm({ onJoin, error }: Props) {
-    const [username, setUsername] = useState("");
+    const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [room, setRoom] = useState(rooms[0].value);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!username || password) {
+        if (!name || !password) {
             error = "ユーザー名とパスワードを入力してください";
             return;
         }
-        onJoin(username, password, room);
+        onJoin(name, password, room);
     };
 
     return (
@@ -27,8 +27,8 @@ export default function JoinRoomForm({ onJoin, error }: Props) {
                 <input
                     type="text"
                     placeholder="ユーザー名"
-                    value={username}
-                    onChange={e => setUsername(e.currentTarget.value)}
+                    value={name}
+                    onChange={e => setName(e.currentTarget.value)}
                     className="px-4 py-2 border rounded"
                 />
                 <input

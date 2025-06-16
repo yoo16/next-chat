@@ -17,8 +17,10 @@ export async function POST(req: Request) {
     });
 
     if (!user) {
-        return NextResponse.json({ error: "User not found" }, { status: 401 });
+        return NextResponse.json({ error: "ユーザ名またはパスワードが間違っています" });
     }
+
+    console.log("User found:", user);
 
     // JWT 生成
     const token = jwt.sign(

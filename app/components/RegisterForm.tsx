@@ -18,7 +18,7 @@ export default function RegisterForm() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                sender: name,
+                name,
                 password,
                 displayName,
             }),
@@ -30,10 +30,17 @@ export default function RegisterForm() {
         }
 
         const data = await res.json();
+        console.log("Response data:", data);
+        if (data.error) {
+            setError(data.error);
+            return;
+        }
         if (!data.userId || !data.token) {
             setError("登録に失敗しました");
             return;
         }
+
+        console.log("New user created:", data);
 
         // ローカルストレージにユーザー情報を保存
         localStorage.setItem("next-chat-user-id", data.userId);

@@ -24,10 +24,12 @@ export default function ChatPage() {
     const [error, setError] = useState<string>("");
 
     useEffect(() => {
+        const savedUserId = localStorage.getItem("next-chat-user-id");
         const savedToken = localStorage.getItem("next-chat-token");
         const savedSender = localStorage.getItem("next-chat-sender");
         const savedRoom = localStorage.getItem("next-chat-room");
 
+        if (savedUserId) setUserId(savedUserId);
         if (savedToken) setToken(savedToken);
         if (savedSender) setSender(savedSender);
         if (savedRoom) setRoom(savedRoom);
@@ -94,12 +96,14 @@ export default function ChatPage() {
                 headers: { "Content-Type": "application/json" }
             });
 
+            console.log("Join response status:", res.status);
             if (!res.ok) {
                 setError("ログインに失敗しました。");
                 return;
             }
 
             const data = await res.json();
+            console.log("Join response:", data);
             if (!data.token || !data.userId) {
                 setError("ログインに失敗しました。");
                 return;
