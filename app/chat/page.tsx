@@ -50,6 +50,17 @@ export default function ChatPage() {
         };
     }, [sender, token]);
 
+    useEffect(() => {
+        if (!socket || !room) return;
+        socket.emit("get-history", { room });
+        socket.on("history", (msgs: Message[]) => {
+            setMessages(msgs);
+        });
+        return () => {
+            socket.off("history");
+        };
+    }, [socket, room]);
+
     // room / sender が決まってソケットが準備できたら join してイベント登録
     useEffect(() => {
         if (!socket || !room) return;
