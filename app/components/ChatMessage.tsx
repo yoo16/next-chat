@@ -8,13 +8,12 @@ interface Props {
 }
 
 function ChatMessage({ message, userId }: Props) {
-    const isOwnMessage = message.userId === userId;
     const image = message.buffer ? URL.createObjectURL(new Blob([message.buffer])) : null;
 
     return (
-        <div className={`flex mb-3 ${isOwnMessage ? "justify-end" : "justify-start"}`}>
+        <div className={`flex mb-3`}>
             {image && <ChatImage message={message} />}
-            {message.text && ChatText({ message, userId })}
+            {message.text && <ChatText message={message} userId={userId} />}
         </div>
     )
 }
