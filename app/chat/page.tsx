@@ -8,6 +8,7 @@ import ChatForm from "@/app/components/ChatForm";
 import ChatList from "@/app/components/ChatList";
 import { Message } from "@/app/interfaces/Message";
 import e from "cors";
+import { AuthUser } from "../interfaces/User";
 
 export default function ChatPage() {
     const search = useSearchParams();
@@ -53,15 +54,15 @@ export default function ChatPage() {
 
         socket.emit("join-room", { room, sender });
 
-        socket.on("auth", (data) => {
+        socket.on("auth", (data: AuthUser) => {
             setToken(data.token);
             setUserId(data.userId);
             localStorage.setItem("next-chat-token", data.token);
         });
 
-        socket.on("user-joined", msg => setMessages(m => [...m, msg]));
-        socket.on("message", msg => setMessages(m => [...m, msg]));
-        socket.on("image", msg => setMessages(m => [...m, msg]));
+        socket.on("user-joined", (msg: Message) => setMessages(m => [...m, msg]));
+        socket.on("message", (msg: Message) => setMessages(m => [...m, msg]));
+        socket.on("image", (msg: Message) => setMessages(m => [...m, msg]));
 
         return () => {
             socket.off("auth");
