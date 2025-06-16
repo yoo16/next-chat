@@ -3,13 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { getSocket } from "@/lib/socketClient";
 import { useSearchParams } from "next/navigation";
+import { Socket } from "socket.io-client";
+
 import JoinRoomForm from "@/app/components/JoinRoomForm";
 import ChatForm from "@/app/components/ChatForm";
 import ChatList from "@/app/components/ChatList";
+import ChatMenu from "@/app/components/ChatMenu";
 import { Message } from "@/app/interfaces/Message";
-import { AuthUser } from "../interfaces/User";
-import { Socket } from "socket.io-client";
-import ChatMenu from "../components/ChatMenu";
+import { AuthUser } from "@/app/interfaces/User";
+import { testMessages } from "@/data/TestData";
 
 export default function ChatPage() {
     const search = useSearchParams();
@@ -52,19 +54,17 @@ export default function ChatPage() {
 
     useEffect(() => {
         if (!socket || !room) return;
-        setMessages([
-            { text: "ようこそ！チャットを始めましょう。", room: "A", userId: "1", sender: "test" },
-            { text: "こんにちは", room: "A", userId: "2", sender: "test" },
-            { text: "げんきですか？", room: "A", userId: "2", sender: "yoo" },
-            { text: "げんきです", room: "A", userId: "3", sender: "yse" },
-        ]);
-        // socket.emit("get-history", { room });
-        // socket.on("history", (msgs: Message[]) => {
-        //     setMessages(msgs);
-        // });
-        // return () => {
-        //     socket.off("history");
-        // };
+        if (process.env.NEXT_PUBLIC_IS_TEST === "true") {
+            setMessages(testMessages);
+        } else {
+            socket.emit("get-history", { room });
+            socket.on("history", (msgs: Message[]) => {
+                setMessages(msgs);
+            });
+            return () => {
+                socket.off("history");
+            };
+        }
     }, [socket, room]);
 
     // room / sender が決まってソケットが準備できたら join してイベント登録
@@ -104,29 +104,25 @@ export default function ChatPage() {
         });
     }, [messages]);
 
-    const handleJoinRoom = async (sender: string, password: string, room: string) => {
-        setSender(sender);
+    const handleJoinRoom = async (name: string, password: string, room: string) => {
+        setSender(name);
         setRoom(room);
 
         try {
             const res = await fetch("/api/join", {
                 method: "POST",
-                body: JSON.stringify({ sender, password, room }),
+                body: JSON.stringify({ name, password }),
                 headers: { "Content-Type": "application/json" }
             });
 
+            const data = await res.json();
             console.log("Join response status:", res.status);
             if (!res.ok) {
-                setError("ログインに失敗しました。");
+                setError(data.error);
                 return;
             }
 
-            const data = await res.json();
-            console.log("Join response:", data);
-            if (!data.token || !data.userId) {
-                setError("ログインに失敗しました。");
-                return;
-            }
+            setError("");
 
             // ローカルストレージに保存
             localStorage.setItem("next-chat-user-id", data.userId);
@@ -144,6 +140,7 @@ export default function ChatPage() {
 
     // メッセージ送信
     const handleSend = (text: string) => {
+        console.log(text, room, userId, sender, token);
         const message = { text, room, userId, sender, token };
         socket?.emit("message", message);
     };
