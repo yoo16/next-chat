@@ -64,6 +64,25 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
 
     return (
         <div className="p-4 rounded-lg shadow-md">
+            {preview && (
+                <div className="flex justify-center p-6">
+                    <div>
+                        <button
+                            type="button"
+                            onClick={handleCancelImage}
+                            className="text-sm text-red-500 px-2 py-1"
+                        >✖
+                        </button>
+                        <Image
+                            src={preview}
+                            alt="preview"
+                            className="w-32 h-32 object-cover rounded"
+                            width={128}
+                            height={128}
+                        />
+                    </div>
+                </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-3">
                 <div className="flex items-center gap-4">
                     <input
@@ -90,25 +109,6 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
                         Image
                     </label>
                 </div>
-
-                {preview && (
-                    <div className="flex items-center gap-2">
-                        <Image
-                            src={preview}
-                            alt="preview"
-                            className="w-16 h-16 object-cover rounded"
-                            width={128}
-                            height={128}
-                        />
-                        <button
-                            type="button"
-                            onClick={handleCancelImage}
-                            className="text-sm text-red-500 px-2 py-1"
-                        >
-                            ✖
-                        </button>
-                    </div>
-                )}
 
             </form>
         </div>

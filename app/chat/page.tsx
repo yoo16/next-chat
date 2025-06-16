@@ -9,6 +9,7 @@ import ChatList from "@/app/components/ChatList";
 import { Message } from "@/app/interfaces/Message";
 import { AuthUser } from "../interfaces/User";
 import { Socket } from "socket.io-client";
+import ChatMenu from "../components/ChatMenu";
 
 export default function ChatPage() {
     const search = useSearchParams();
@@ -175,22 +176,13 @@ export default function ChatPage() {
 
     return (
         <div>
-            <div className=" pb-[128px] px-4 space-y-2">
+            <ChatMenu room={room} sender={sender} onLogout={handleLogout} />
+
+            <div className="pb-[128px] px-4 space-y-2">
                 <ChatList messages={messages} userId={userId} />
             </div>
 
             <div className="fixed bottom-0 left-0 w-full bg-white z-10">
-                <header className="px-4 text-sm flex justify-between items-center">
-                    <div>
-                        <strong>Room {room}</strong> ｜ {sender} ({userId})
-                    </div>
-                    <button
-                        className="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600"
-                        onClick={handleLogout}
-                    >
-                        ログアウト
-                    </button>
-                </header>
                 <ChatForm onSend={handleSend} onSendImage={handleSendImage} />
             </div>
         </div>
