@@ -29,7 +29,7 @@ export default function ChatPage() {
     useEffect(() => {
         const savedUserId = localStorage.getItem("next-chat-user-id");
         const savedToken = localStorage.getItem("next-chat-token");
-        const savedSender = localStorage.getItem("next-chat-sender");
+        const savedSender = localStorage.getItem("next-chat-name");
         const savedRoom = localStorage.getItem("next-chat-room");
 
         if (savedUserId) setUserId(savedUserId);
@@ -127,7 +127,7 @@ export default function ChatPage() {
             // ローカルストレージに保存
             localStorage.setItem("next-chat-user-id", data.userId);
             localStorage.setItem("next-chat-token", data.token);
-            localStorage.setItem("next-chat-sender", sender);
+            localStorage.setItem("next-chat-name", name);
             localStorage.setItem("next-chat-room", room);
 
             // 状態を更新
@@ -161,8 +161,9 @@ export default function ChatPage() {
             return;
         }
         // ローカルストレージ削除
+        localStorage.removeItem("next-chat-user-id");
         localStorage.removeItem("next-chat-token");
-        localStorage.removeItem("next-chat-sender");
+        localStorage.removeItem("next-chat-name");
         localStorage.removeItem("next-chat-room");
 
         // 状態のリセット
@@ -180,7 +181,7 @@ export default function ChatPage() {
     };
 
     // token がなければ JoinRoomForm を表示
-    if (!token || !userId || !room) {
+    if (!token) {
         return (
             <div className="min-h-screen bg-gray-50 py-10">
                 <JoinRoomForm onJoin={handleJoinRoom} error={error} />
