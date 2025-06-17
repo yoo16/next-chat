@@ -138,6 +138,14 @@ export default function ChatPage() {
                 return;
             }
 
+            try {
+                const res = await fetch(`/api/user/${data.userId}`);
+                if (!res.ok) throw new Error("ユーザー取得に失敗");
+                const user = await res.json();
+                setUserInfo(user);
+            } catch (err) {
+                console.error("ユーザ情報取得失敗:", err);
+            }
             setError("");
 
             // ローカルストレージに保存
