@@ -1,18 +1,19 @@
 "use client";
 
+import { User } from "@prisma/client";
 import React from "react";
 
 type LogoutHeaderProps = {
   room: string;
-  sender: string;
+  user: User;
   onLogout: () => void;
 };
 
-const LogoutHeader = ({ room, sender, onLogout }: LogoutHeaderProps) => {
+const LogoutHeader = ({ room, user, onLogout }: LogoutHeaderProps) => {
   return (
     <header className="p-4 text-sm flex justify-between items-center">
       <div>
-        <strong>Room {room}</strong> ｜ {sender}
+        <strong>Room {room}</strong> ｜ {user.displayName || user.name} さん
       </div>
       <button
         className="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600"

@@ -13,20 +13,20 @@ export default async function UserDetailPage({ params }: { params: { id: string 
     }
 
     return (
-        <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded shadow">
-            <h1 className="text-2xl font-bold mb-4">ユーザー詳細</h1>
-
-            {/* 画像 */}
+        <div className="max-w-2xl mx-auto mt-10 bg-white p-6 rounded shadow">
             {user.image && (
-                <div className="mb-4">
-                    <Image
-                        src={user.image}
-                        alt={`${user.displayName}の画像`}
-                        width={120}
-                        height={120}
-                        className="rounded-full mx-auto"
-                    />
+                <div className="m-4">
+                    <div className="rounded-full overflow-hidden w-32 h-32 mx-auto">
+                        <Image
+                            src={user.image}
+                            alt={`${user.displayName}`}
+                            width={128}
+                            height={128}
+                            className="object-cover w-full h-full"
+                        />
+                    </div>
                 </div>
+
             )}
 
             <div className="space-y-2">

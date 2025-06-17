@@ -20,7 +20,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "ユーザ名またはパスワードが間違っています" }, { status: 401 });
         }
 
-        // ✅ JWT 生成
+        // JWT 生成
         const token = jwt.sign(
             { userId: user.id, sender: user.name, },
             JWT_SECRET,
