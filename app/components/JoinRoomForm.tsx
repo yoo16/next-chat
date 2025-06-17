@@ -1,22 +1,26 @@
 import React, { useState } from "react";
-import { rooms, RoomOption } from '@/data/rooms'
+import { rooms, RoomOption } from "@/data/rooms";
 
 interface Props {
-    onJoin: (name: string, password:string, room: string) => void;
+    onJoin: (name: string, password: string, room: string) => void;
     error?: string;
 }
 
-export default function JoinRoomForm({ onJoin, error }: Props) {
+export default function JoinRoomForm({ onJoin, error: externalError }: Props) {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [room, setRoom] = useState(rooms[0].value);
+    const [localError, setLocalError] = useState("");
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!name || !password) {
-            error = "ユーザー名とパスワードを入力してください";
+            setLocalError("ユーザー名とパスワードを入力してください");
             return;
         }
+
+        // エラーがなければクリア
+        setLocalError("");
         onJoin(name, password, room);
     };
 
@@ -28,19 +32,19 @@ export default function JoinRoomForm({ onJoin, error }: Props) {
                     type="text"
                     placeholder="ユーザー名"
                     value={name}
-                    onChange={e => setName(e.currentTarget.value)}
+                    onChange={(e) => setName(e.currentTarget.value)}
                     className="px-4 py-2 border rounded"
                 />
                 <input
                     type="password"
                     placeholder="パスワード"
                     value={password}
-                    onChange={e => setPassword(e.currentTarget.value)}
+                    onChange={(e) => setPassword(e.currentTarget.value)}
                     className="px-4 py-2 border rounded"
                 />
                 <select
                     value={room}
-                    onChange={e => setRoom(e.currentTarget.value)}
+                    onChange={(e) => setRoom(e.currentTarget.value)}
                     className="px-4 py-2 border rounded"
                 >
                     {rooms.map((r: RoomOption) => (
@@ -49,11 +53,12 @@ export default function JoinRoomForm({ onJoin, error }: Props) {
                         </option>
                     ))}
                 </select>
-                {error && <div className="text-red-600">{error}</div>}
-                <button
-                    type="submit"
-                    className="bg-sky-500 text-white px-4 py-2 rounded"
-                >
+
+                {(localError || externalError) && (
+                    <div className="text-red-600">{localError || externalError}</div>
+                )}
+
+                <button type="submit" className="bg-sky-500 text-white px-4 py-2 rounded">
                     Join
                 </button>
             </form>

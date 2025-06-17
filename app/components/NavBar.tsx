@@ -2,23 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export default function NavBar() {
     const pathname = usePathname();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [user, setUser] = useState({ id: 0, name: "", displayName: "" });
-
-    useEffect(() => {
-        const token = localStorage.getItem("next-chat-token");
-        const userId = localStorage.getItem("next-chat-user-id");
-        setIsAuthenticated(!!token);
-        if (userId) {
-            setUser({ ...user, id: Number(userId) });
-        }
-        console.log("Token:", token);
-        console.log("User ID:", userId);
-    }, []);
 
     const linkClass = (path: string) =>
         `px-4 py-2 rounded hover:bg-sky-200 transition ${pathname === path ? "font-bold" : ""}`;
@@ -29,18 +15,11 @@ export default function NavBar() {
                 <Link href="/">Next Chat</Link>
             </div>
             <div className="space-x-4">
-                {!isAuthenticated && (
-                    <Link href="/regist" className={linkClass("/regist")}>
-                        ユーザ登録
-                    </Link>
-                )}
-                {isAuthenticated && (
-                    <Link href={`/user/${user.id}`} className={linkClass(`/user/${user.id}`)}>
-                        ユーザ情報
-                    </Link>
-                )}
-                <Link href="/chat" className={linkClass("/chat")}>
-                    チャット
+                <Link href="/regist" className={linkClass("/regist")}>
+                    ユーザ登録
+                </Link>
+                <Link href="/join" className={linkClass("/join")}>
+                    チャットに参加
                 </Link>
             </div>
         </nav>

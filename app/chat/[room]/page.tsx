@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { getSocket } from "@/lib/socketClient";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Socket } from "socket.io-client";
 
-import JoinRoomForm from "@/app/components/JoinRoomForm";
 import ChatForm from "@/app/components/ChatForm";
 import ChatList from "@/app/components/ChatList";
 import ChatMenu from "@/app/components/ChatMenu";
@@ -15,52 +14,58 @@ import { testMessages } from "@/data/TestData";
 import { User } from ".prisma/client/default";
 
 export default function ChatPage() {
-    const search = useSearchParams();
-
-    const initialRoom = search.get("room") || "";
+    const router = useRouter();
+    const params = useParams();
+    const room = typeof params.room === "string" ? params.room : "";
 
     const [userInfo, setUserInfo] = useState<User | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [room, setRoom] = useState<string>(initialRoom);
     const [token, setToken] = useState<string>("");
     const [userId, setUserId] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
-    const [error, setError] = useState<string>("");
 
     useEffect(() => {
+        const savedToken = localStorage.getItem("next-chat-token");
+        const savedUserId = localStorage.getItem("next-chat-user-id");
+        if (!savedToken || !savedUserId) {
+            // トークンがない場合はログイン画面へリダイレクト
+            router.push("/join");
+            return;
+        }
+        setToken(savedToken);
+        setUserId(savedUserId);
+
+        // ユーザー情報の取得
         const fetchUserInfo = async () => {
-            const savedUserId = localStorage.getItem("next-chat-user-id");
-            const savedToken = localStorage.getItem("next-chat-token");
-            const savedRoom = localStorage.getItem("next-chat-room");
-
-            if (savedUserId) {
-                setUserId(savedUserId);
-
-                try {
-                    const res = await fetch(`/api/user/${savedUserId}`);
-                    if (!res.ok) throw new Error("ユーザー取得に失敗");
-                    const data = await res.json();
-                    if (data) {
-                        setUserInfo(data);
+            try {
+                const res = await fetch(`/api/user/${savedUserId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     }
-                } catch (err) {
-                    console.error("ユーザ情報の取得エラー:", err);
-                }
-            }
+                });
 
-            if (savedToken) setToken(savedToken);
-            if (savedRoom) setRoom(savedRoom);
+                if (!res.ok) {
+                    router.push("/join");
+                    return;
+                }
+                const user = await res.json();
+                setUserInfo(user);
+            } catch (err) {
+                console.error("ユーザ情報の取得エラー:", err);
+                router.push("/join");
+            }
         };
 
         fetchUserInfo();
-    }, []);
-
+    }, [room, router, token]);
 
     useEffect(() => {
         if (!userInfo?.name || !token) return;
-        // ソケットの初期化
+
         const newSocket = getSocket(userInfo.name);
-        newSocket.auth = { sender: userInfo.name, token };
+        newSocket.auth = { token };
         newSocket.connect();
 
         setSocket(newSocket);
@@ -122,54 +127,9 @@ export default function ChatPage() {
         });
     }, [messages]);
 
-    const handleJoinRoom = async (name: string, password: string, room: string) => {
-        setRoom(room);
-        try {
-            const res = await fetch("/api/join", {
-                method: "POST",
-                body: JSON.stringify({ name, password }),
-                headers: { "Content-Type": "application/json" }
-            });
-
-            const data = await res.json();
-            console.log("Join response status:", res.status);
-            if (!res.ok) {
-                setError(data.error);
-                return;
-            }
-
-            try {
-                const res = await fetch(`/api/user/${data.userId}`);
-                if (!res.ok) throw new Error("ユーザー取得に失敗");
-                const user = await res.json();
-                setUserInfo(user);
-            } catch (err) {
-                console.error("ユーザ情報取得失敗:", err);
-            }
-            setError("");
-
-            // ローカルストレージに保存
-            localStorage.setItem("next-chat-user-id", data.userId);
-            localStorage.setItem("next-chat-token", data.token);
-            localStorage.setItem("next-chat-name", name);
-            localStorage.setItem("next-chat-room", room);
-
-            // 状態を更新
-            setToken(data.token);
-            setUserId(data.userId);
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError(String(err));
-            }
-        }
-    };
-
     // メッセージ送信
     const handleSend = (text: string) => {
         const sender = userInfo?.name;
-        console.log(text, room, userId, sender, token);
         const message = { text, room, userId, sender, token };
         socket?.emit("message", message);
     };
@@ -198,7 +158,6 @@ export default function ChatPage() {
 
         // 状態のリセット
         setToken("");
-        setRoom("");
         setUserId("");
         setUserInfo(null);
         setMessages([]);
@@ -208,20 +167,13 @@ export default function ChatPage() {
         if (socket) {
             socket.disconnect();
         }
+        // ログイン画面へリダイレクト
+        router.push("/join");
     };
-
-    // token がなければ JoinRoomForm を表示
-    if (!token || !userInfo) {
-        return (
-            <div className="min-h-screen bg-gray-50 py-10">
-                <JoinRoomForm onJoin={handleJoinRoom} error={error} />
-            </div>
-        );
-    }
 
     return (
         <div>
-            <ChatMenu room={room} user={userInfo} onLogout={handleLogout} />
+            {userInfo && <ChatMenu room={room} user={userInfo} onLogout={handleLogout} />}
 
             <div className="pb-[128px] px-4 space-y-2">
                 <ChatList messages={messages} userId={userId} />

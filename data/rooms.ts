@@ -4,8 +4,8 @@ export interface RoomOption {
 }
 
 export const rooms: RoomOption[] = [
-    { value: 'A', label: 'Room A' },
-    { value: 'B', label: 'Room B' },
-    { value: 'C', label: 'Room C' },
+    { value: 'a', label: 'Room A' },
+    { value: 'b', label: 'Room B' },
+    { value: 'c', label: 'Room C' },
     // 必要に応じて追加
 ];

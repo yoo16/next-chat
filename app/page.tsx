@@ -11,7 +11,7 @@ export default function HomePage() {
                     友達・チーム・AIとチャットしよう
                 </p>
                 <div className="space-x-4">
-                    <Link href="/chat"
+                    <Link href="/join"
                         className="px-6 py-3 bg-sky-600 text-white rounded-xl shadow hover:bg-sky-700 transition">
                         チャットに参加
                     </Link>

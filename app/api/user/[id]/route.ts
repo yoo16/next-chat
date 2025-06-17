@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 
 export async function GET(
-    req: Request,
-    { params }: { params: { id: string } }
+    req: NextRequest,
+    context: { params: { id: string } }
 ) {
-    const userId = Number(params.id);
+    const token = req.headers.get("Authorization")?.replace("Bearer ", "");
+    if (!token) {
+        return NextResponse.json({ error: "認証トークンが必要です" });
+    }
+    console.log("Received token:", token);
 
+    const userId = Number(context.params.id);
     if (isNaN(userId)) {
-        return NextResponse.json({ error: "無効なユーザーIDです" }, { status: 400 });
+        return NextResponse.json({ error: "無効なユーザーIDです" });
     }
 
     const user = await prisma.user.findUnique({
