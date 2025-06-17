@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { rooms, RoomOption } from '@/app/data/rooms'
+import { rooms, RoomOption } from '@/data/rooms'
 
 interface Props {
     onJoin: (name: string, password:string, room: string) => void;

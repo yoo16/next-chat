@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { languages } from '@/data/langs';
 
 export default function EditUserForm({ user }: { user: any }) {
     const [formData, setFormData] = useState({
@@ -14,16 +15,26 @@ export default function EditUserForm({ user }: { user: any }) {
 
     const router = useRouter();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const form = new FormData();
+        form.append('name', formData.name);
+        form.append('displayName', formData.displayName);
+        form.append('profile', formData.profile);
+        form.append('lang', formData.lang);
+        if (formData.image) {
+            form.append('image', formData.image); // File を送信
+        }
+
         const res = await fetch(`/user/${user.id}/edit/update`, {
             method: 'POST',
-            body: JSON.stringify(formData),
+            body: form,
         });
 
         if (res.ok) {
@@ -33,8 +44,9 @@ export default function EditUserForm({ user }: { user: any }) {
         }
     };
 
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto mt-10">
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto mt-10" encType="multipart/form-data">
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">ユーザー名</label>
                 <input
@@ -68,23 +80,33 @@ export default function EditUserForm({ user }: { user: any }) {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">言語（例: ja, en）</label>
-                <input
+                <label className="block text-sm font-medium text-gray-700 mb-1">言語</label>
+                <select
                     name="lang"
                     value={formData.lang}
                     onChange={handleChange}
                     className="w-full p-2 border rounded"
-                />
+                >
+                    <option value="">選択してください</option>
+                    {languages.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                            {lang.label}
+                        </option>
+                    ))}
+                </select>
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">画像URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">画像ファイル</label>
                 <input
+                    type="file"
                     name="image"
-                    value={formData.image}
-                    onChange={handleChange}
+                    accept="image/*"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setFormData(prev => ({ ...prev, image: file }));
+                    }}
                     className="w-full p-2 border rounded"
-                    type="url"
                 />
             </div>
 
