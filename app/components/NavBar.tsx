@@ -7,11 +7,17 @@ import { useEffect, useState } from "react";
 export default function NavBar() {
     const pathname = usePathname();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState({ id: 0, name: "", displayName: "" });
 
     useEffect(() => {
         const token = localStorage.getItem("next-chat-token");
+        const userId = localStorage.getItem("next-chat-user-id");
         setIsAuthenticated(!!token);
-        console.log(token)
+        if (userId) {
+            setUser({ ...user, id: Number(userId) });
+        }
+        console.log("Token:", token);
+        console.log("User ID:", userId);
     }, []);
 
     const linkClass = (path: string) =>
@@ -26,6 +32,11 @@ export default function NavBar() {
                 {!isAuthenticated && (
                     <Link href="/regist" className={linkClass("/regist")}>
                         ユーザ登録
+                    </Link>
+                )}
+                {isAuthenticated && (
+                    <Link href={`/user/${user.id}`} className={linkClass(`/user/${user.id}`)}>
+                        ユーザ情報
                     </Link>
                 )}
                 <Link href="/chat" className={linkClass("/chat")}>
