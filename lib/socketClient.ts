@@ -8,10 +8,10 @@ const SOCKET_URL =
 
 let socket: Socket;
 
-export function getSocket(sender: string): Socket {
+export function getSocket(token: string): Socket {
     if (!socket) {
         socket = io(SOCKET_URL!, {
-            auth: { sender },
+            auth: { token },
             withCredentials: true,
             autoConnect: false,
         });

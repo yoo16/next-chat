@@ -1,20 +1,21 @@
 import React from 'react'
 import ChatMessage from '@/app/components/ChatMessage'
 import { Message } from '@/app/interfaces/Message';
+import { User } from '@prisma/client';
 
 interface Props {
     messages: Message[];
-    userId: string;
+    user: User;
 }
 
-function ChatList({ messages, userId }: Props) {
+function ChatList({ messages, user }: Props) {
     return (
         <div className="h-full overflow-y-auto p-4">
             {messages.map((message, index) => (
                 <ChatMessage
                     key={index}
                     message={message}
-                    userId={userId}
+                    user={user}
                 />
             ))}
         </div>

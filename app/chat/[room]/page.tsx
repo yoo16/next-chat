@@ -10,7 +10,6 @@ import ChatList from "@/app/components/ChatList";
 import ChatMenu from "@/app/components/ChatMenu";
 import { Message } from "@/app/interfaces/Message";
 import { AuthUser } from "@/app/interfaces/User";
-import { testMessages } from "@/data/TestData";
 import { User } from ".prisma/client/default";
 
 export default function ChatPage() {
@@ -18,27 +17,27 @@ export default function ChatPage() {
     const params = useParams();
     const room = typeof params.room === "string" ? params.room : "";
 
-    const [userInfo, setUserInfo] = useState<User | null>(null);
+    const [userInfo, setUserInfo] = useState<User>();
     const [socket, setSocket] = useState<Socket | null>(null);
     const [token, setToken] = useState<string>("");
     const [userId, setUserId] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
-        const savedToken = localStorage.getItem("next-chat-token");
-        const savedUserId = localStorage.getItem("next-chat-user-id");
-        if (!savedToken || !savedUserId) {
+        const token = localStorage.getItem("next-chat-token");
+        const userId = localStorage.getItem("next-chat-user-id");
+        if (!token || !userId) {
             // トークンがない場合はログイン画面へリダイレクト
             router.push("/join");
             return;
         }
-        setToken(savedToken);
-        setUserId(savedUserId);
+        setToken(token);
+        setUserId(userId);
 
         // ユーザー情報の取得
         const fetchUserInfo = async () => {
             try {
-                const res = await fetch(`/api/user/${savedUserId}`, {
+                const res = await fetch(`/api/user/${userId}`, {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,
@@ -51,7 +50,15 @@ export default function ChatPage() {
                     return;
                 }
                 const user = await res.json();
-                setUserInfo(user);
+                // ユーザ情報が取得できた場合
+                if (user) {
+                    // ユーザ情報を状態にセット
+                    setUserInfo(user);
+
+                    // ソケットの初期化
+                    const newSocket = getSocket(token);
+                    setSocket(newSocket);
+                }
             } catch (err) {
                 console.error("ユーザ情報の取得エラー:", err);
                 router.push("/join");
@@ -62,46 +69,17 @@ export default function ChatPage() {
     }, [room, router, token]);
 
     useEffect(() => {
-        if (!userInfo?.name || !token) return;
-
-        const newSocket = getSocket(userInfo.name);
-        newSocket.auth = { token };
-        newSocket.connect();
-
-        setSocket(newSocket);
-
-        return () => {
-            newSocket.disconnect();
-        };
-    }, [userInfo, token]);
-
-    useEffect(() => {
         if (!socket || !room) return;
-        if (process.env.NEXT_PUBLIC_IS_TEST === "true") {
-            setMessages(testMessages);
-        } else {
-            socket.emit("get-history", { room });
-            socket.on("history", (msgs: Message[]) => {
-                setMessages(msgs);
-            });
-            return () => {
-                socket.off("history");
-            };
-        }
-    }, [socket, room]);
 
-    // room / sender が決まってソケットが準備できたら join してイベント登録
-    useEffect(() => {
-        if (!socket || !room) return;
+        socket.emit("get-history", { room });
 
         // ルームに参加
-        socket.emit("join-room", { room, sender: userInfo?.name });
+        socket.emit("join-room", { room });
 
         // 認証受信
         socket.on("auth", (data: AuthUser) => {
-            setToken(data.token);
+            console.log("認証成功:", data);
             setUserId(data.userId);
-            localStorage.setItem("next-chat-token", data.token);
         });
 
         // ユーザー参加受信
@@ -110,14 +88,19 @@ export default function ChatPage() {
         socket.on("message", (msg: Message) => setMessages(m => [...m, msg]));
         // 画像の受信
         socket.on("image", (msg: Message) => setMessages(m => [...m, msg]));
+        // 履歴の受信
+        socket.on("history", (msgs: Message[]) => {
+            setMessages(msgs);
+        });
 
         return () => {
             socket.off("auth");
             socket.off("user-joined");
             socket.off("message");
             socket.off("image");
+            socket.off("history");
         };
-    }, [socket, room, userInfo]);
+    }, [socket, room]);
 
     useEffect(() => {
         if (messages.length === 0) return;
@@ -146,6 +129,7 @@ export default function ChatPage() {
         reader.readAsArrayBuffer(file);
     };
 
+    // ログアウト
     const handleLogout = () => {
         if (!confirm("ログアウトしますか？")) {
             return;
@@ -159,7 +143,7 @@ export default function ChatPage() {
         // 状態のリセット
         setToken("");
         setUserId("");
-        setUserInfo(null);
+        setUserInfo({} as User);
         setMessages([]);
         setSocket(null);
 
@@ -176,7 +160,7 @@ export default function ChatPage() {
             {userInfo && <ChatMenu room={room} user={userInfo} onLogout={handleLogout} />}
 
             <div className="pb-[128px] px-4 space-y-2">
-                <ChatList messages={messages} userId={userId} />
+                {userInfo && <ChatList messages={messages} user={userInfo} />}
             </div>
 
             <div className="fixed bottom-0 left-0 w-full bg-white z-10">
