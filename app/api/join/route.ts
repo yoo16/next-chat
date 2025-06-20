@@ -1,7 +1,10 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+
 // import { cookies } from "next/headers";
 
 const prisma = new PrismaClient();
@@ -9,20 +12,20 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 const REFRESH_SECRET = process.env.REFRESH_SECRET || "default_refresh_secret";
 
 // アクセストークン（短命）
-function generateAccessToken(payload: { userId: number; sender: string }) {
+function generateAccessToken(payload: { userId: number; name: string }) {
     return jwt.sign(
         payload,
         JWT_SECRET,
-        { expiresIn: "30d" }
+        { expiresIn: "7d" }
     );
 }
 
 // リフレッシュトークン（長命）
-function generateRefreshToken(payload: { userId: number; sender: string }) {
+function generateRefreshToken(payload: { userId: number; name: string }) {
     return jwt.sign(
         payload, 
         REFRESH_SECRET, 
-        // { expiresIn: "30d" }
+        { expiresIn: "30d" }
     );
 }
 
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
         );
     }
 
-    const payload = { userId: user.id, sender: user.name };
+    const payload = { userId: user.id, name: user.name };
 
     // JWT トークン生成
     const accessToken = generateAccessToken(payload);
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
     //     maxAge: 60 * 60 * 24 * 30, // 30日
     //     path: "/",
     // });
-
+    
     // アクセストークンはJSONで返す
     return NextResponse.json({
         token: accessToken,

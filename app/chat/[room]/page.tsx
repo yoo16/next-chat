@@ -24,21 +24,24 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<Message[]>([]);
 
     useEffect(() => {
-        const token = localStorage.getItem("next-chat-token");
-        const userId = localStorage.getItem("next-chat-user-id");
+        const savedToken = localStorage.getItem("next-chat-token");
+        const savedUserId = localStorage.getItem("next-chat-user-id");
 
-        if (!token || !userId) {
-            // トークンがない場合はログイン画面へリダイレクト
+        if (!savedToken || !savedUserId) {
             router.push("/join");
             return;
         }
-        setToken(token);
-        setUserId(userId);
 
-        // ユーザー情報の取得
+        setToken(savedToken);
+        setUserId(savedUserId);
+    }, [router]);
+
+    useEffect(() => {
+        if (!token || !userId) return;
+
         const fetchUserInfo = async () => {
             try {
-                const res = await fetch(`/api/user/${userId}`, {
+                const res = await fetch(`/api/user/me`, {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,
@@ -46,26 +49,18 @@ export default function ChatPage() {
                     }
                 });
                 if (!res.ok) {
-                    console.log("ユーザ情報の取得に失敗");
                     router.push("/join");
                     return;
                 }
+
                 const user = await res.json();
-                if (user?.error) {
-
-                }
-
-                console.log("ユーザ情報取得レスポンス:", user);
-                // ユーザ情報が取得できた場合
-                if (!user) {
-                    console.error("ユーザ情報が取得できませんでした");
+                if (!user || user.error) {
                     router.push("/join");
                     return;
                 }
-                // ユーザ情報を状態にセット
+
                 setUserInfo(user);
 
-                // ソケットの初期化
                 const newSocket = getSocket(token);
                 setSocket(newSocket);
             } catch (err) {
@@ -75,11 +70,9 @@ export default function ChatPage() {
         };
 
         fetchUserInfo();
-    }, [room, router, token]);
+    }, [token, userId, router]);
 
     useEffect(() => {
-        console.log("ソケット接続:", socket);
-        console.log("ルーム:", room);
         if (!socket || !room) return;
 
         // 会話履歴の取得
@@ -151,7 +144,6 @@ export default function ChatPage() {
         // ローカルストレージ削除
         localStorage.removeItem("next-chat-user-id");
         localStorage.removeItem("next-chat-token");
-        localStorage.removeItem("next-chat-name");
         localStorage.removeItem("next-chat-room");
 
         // 状態のリセット

@@ -26,12 +26,16 @@ npm run dev
 npx prisma migrate dev --name init
 ```
 
+#### migrate
+```bash
+npx prisma migrate dev
+```
+
 ### Prisma Client
 
 ```bash
 npx prisma studio
 ```
-
 ## Git Rebase
 ```bash
 git config pull.rebase false

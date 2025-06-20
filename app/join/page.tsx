@@ -24,7 +24,6 @@ export default function JoinPage() {
 
             localStorage.setItem("next-chat-user-id", data.userId);
             localStorage.setItem("next-chat-token", data.token);
-            localStorage.setItem("next-chat-name", name);
             localStorage.setItem("next-chat-room", room);
 
             // チャットページへ遷移
