@@ -29,32 +29,28 @@ export default function ChatPage() {
         // ソケットの初期化
         const newSocket = getSocket(token);
         setSocket(newSocket);
-    }, [user, token]);
+        // ルームに参加
+        newSocket.emit("join-room", { room });
+    }, [user, token, room]);
 
     useEffect(() => {
         if (!socket || !room) return;
-        console.log("ソケット接続:", socket.id);
 
         // 会話履歴の取得
-        // socket.emit("get-history", { room });
-
-        // ルームに参加
-        socket.emit("join-room", { room });
-
-        console.log("履歴取得リクエスト:", room);
+        socket.emit("get-history", { room });
 
         // 認証受信
         socket.on("auth", (data: AuthUser) => {
+            if (!data) return;
             console.log("認証成功:", data);
-            // setUserId(data.userId);
         });
 
         // ユーザー参加受信
-        socket.on("user-joined", (msg: Message) => setMessages(m => [...m, msg]));
+        socket.on("user-joined", (msg: Message) => setMessages(prev => [...prev, msg]));
         // メッセージ受信
-        socket.on("message", (msg: Message) => setMessages(m => [...m, msg]));
+        socket.on("message", (msg: Message) => setMessages(prev => [...prev, msg]));
         // 画像の受信
-        socket.on("image", (msg: Message) => setMessages(m => [...m, msg]));
+        socket.on("image", (msg: Message) => setMessages(prev => [...prev, msg]));
         // 履歴の受信
         socket.on("history", (msgs: Message[]) => {
             setMessages(msgs);
