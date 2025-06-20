@@ -15,7 +15,7 @@ function ChatList({ messages, user }: Props) {
                 <ChatMessage
                     key={index}
                     message={message}
-                    userId={user.id}
+                    user={user}
                 />
             ))}
         </div>

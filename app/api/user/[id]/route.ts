@@ -14,7 +14,7 @@ export async function GET(req: Request, context: { params: { id: string } }) {
         jwt.verify(token, JWT_SECRET);
     } catch (err) {
         console.error("JWT verification failed:", err);
-        return NextResponse.json({ error: "認証エラー" });
+        return NextResponse.json({ error: "認証エラー" }, { status: 401 });
     }
 
     const userId = Number(context.params.id);

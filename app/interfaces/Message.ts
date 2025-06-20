@@ -1,6 +1,6 @@
 export interface Message {
     room?: string;
-    userId?: string;
+    userId?: number;
     text: string;
     buffer?: ArrayBuffer;
     sender: string;

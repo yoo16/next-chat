@@ -38,7 +38,6 @@ export default function ChatPage() {
         // ユーザー情報の取得
         const fetchUserInfo = async () => {
             try {
-                console.log("ユーザ情報取得リクエスト:", token, userId);
                 const res = await fetch(`/api/user/${userId}`, {
                     method: "GET",
                     headers: {
@@ -46,8 +45,16 @@ export default function ChatPage() {
                         "Content-Type": "application/json"
                     }
                 });
-
+                if (!res.ok) {
+                    console.log("ユーザ情報の取得に失敗");
+                    router.push("/join");
+                    return;
+                }
                 const user = await res.json();
+                if (user?.error) {
+
+                }
+
                 console.log("ユーザ情報取得レスポンス:", user);
                 // ユーザ情報が取得できた場合
                 if (!user) {
