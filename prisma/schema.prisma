@@ -8,14 +8,16 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  password    String
-  displayName String
-  profile     String?
-  image       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  password     String
+  displayName  String
+  profile      String?
+  image        String?
+  lang         String?
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("users")
 }

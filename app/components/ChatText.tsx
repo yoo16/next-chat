@@ -2,14 +2,15 @@ import React from 'react'
 import Sender from './Sender';
 import { Message } from '@/app/interfaces/Message';
 import { dateFormat } from '@/lib/date';
+import { User } from '@prisma/client';
 
 interface Props {
     message: Message;
-    userId: string;
+    user: User;
 }
 
-export default function ChatText({ message, userId }: Props) {
-    const isOwnMessage = message.userId === userId;
+export default function ChatText({ message, user }: Props) {
+    const isOwnMessage = message.userId === user.id;
     const chatStyle = isOwnMessage ? "bg-green-500 text-white" : "bg-gray-100 text-gray-600";
 
     return (

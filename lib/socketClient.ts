@@ -8,11 +8,13 @@ const SOCKET_URL =
 
 let socket: Socket;
 
-export function getSocket(sender: string): Socket {
+export function getSocket(token: string): Socket {
+    console.log("Connecting to socket with token:", token);
     if (!socket) {
         socket = io(SOCKET_URL!, {
-            auth: { sender },
-            withCredentials: true,
+            auth: { token },
+            // TODO: ここでwithCredentialsをtrueにすると、CORSの問題が発生する可能性がある
+            // withCredentials: true,
             autoConnect: false,
         });
     }

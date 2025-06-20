@@ -26,6 +26,7 @@ export default function ChatPage() {
     useEffect(() => {
         const token = localStorage.getItem("next-chat-token");
         const userId = localStorage.getItem("next-chat-user-id");
+
         if (!token || !userId) {
             // トークンがない場合はログイン画面へリダイレクト
             router.push("/join");
@@ -44,21 +45,29 @@ export default function ChatPage() {
                         "Content-Type": "application/json"
                     }
                 });
-
                 if (!res.ok) {
+                    console.log("ユーザ情報の取得に失敗");
                     router.push("/join");
                     return;
                 }
                 const user = await res.json();
-                // ユーザ情報が取得できた場合
-                if (user) {
-                    // ユーザ情報を状態にセット
-                    setUserInfo(user);
+                if (user?.error) {
 
-                    // ソケットの初期化
-                    const newSocket = getSocket(token);
-                    setSocket(newSocket);
                 }
+
+                console.log("ユーザ情報取得レスポンス:", user);
+                // ユーザ情報が取得できた場合
+                if (!user) {
+                    console.error("ユーザ情報が取得できませんでした");
+                    router.push("/join");
+                    return;
+                }
+                // ユーザ情報を状態にセット
+                setUserInfo(user);
+
+                // ソケットの初期化
+                const newSocket = getSocket(token);
+                setSocket(newSocket);
             } catch (err) {
                 console.error("ユーザ情報の取得エラー:", err);
                 router.push("/join");
@@ -69,12 +78,17 @@ export default function ChatPage() {
     }, [room, router, token]);
 
     useEffect(() => {
+        console.log("ソケット接続:", socket);
+        console.log("ルーム:", room);
         if (!socket || !room) return;
 
+        // 会話履歴の取得
         socket.emit("get-history", { room });
 
         // ルームに参加
         socket.emit("join-room", { room });
+
+        console.log("履歴取得リクエスト:", room);
 
         // 認証受信
         socket.on("auth", (data: AuthUser) => {
