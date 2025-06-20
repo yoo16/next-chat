@@ -1,15 +1,18 @@
 "use client";
 
 import JoinRoomForm from "@/app/components/JoinRoomForm";
+import { useLoadingStore } from "@/lib/store/loadingStore";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function JoinPage() {
     const [error, setError] = useState("");
     const router = useRouter();
+    const { setLoading } = useLoadingStore();
 
     const handleJoinRoom = async (name: string, password: string, room: string) => {
         try {
+            setLoading(true);
             const res = await fetch("/api/join", {
                 method: "POST",
                 body: JSON.stringify({ name, password }),
@@ -31,6 +34,8 @@ export default function JoinPage() {
         } catch (err) {
             console.log("Join room error:", err);
             setError("ログインに失敗しました");
+        } finally {
+            setLoading(false);
         }
     };
 

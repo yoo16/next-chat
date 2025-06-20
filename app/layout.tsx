@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import NavBar from "./components/NavBar";
 import { APP_NAME } from "@/lib/constants";
+import LoadingOverlay from "@/app/components/LoadingOverlay";
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
+        <LoadingOverlay />
         <NavBar />
         {children}
       </body>

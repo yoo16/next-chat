@@ -11,17 +11,20 @@ import ChatMenu from "@/app/components/ChatMenu";
 import { Message } from "@/app/interfaces/Message";
 import { AuthUser } from "@/app/interfaces/User";
 import { User } from ".prisma/client/default";
+import { useLoadingStore } from "@/lib/store/loadingStore";
 
 export default function ChatPage() {
     const router = useRouter();
     const params = useParams();
-    const room = typeof params.room === "string" ? params.room : "";
+    const { setLoading } = useLoadingStore();
 
-    const [userInfo, setUserInfo] = useState<User>();
     const [socket, setSocket] = useState<Socket | null>(null);
     const [token, setToken] = useState<string>("");
     const [userId, setUserId] = useState<string>("");
+    const [userInfo, setUserInfo] = useState<User>();
     const [messages, setMessages] = useState<Message[]>([]);
+
+    const room = typeof params.room === "string" ? params.room : "";
 
     useEffect(() => {
         const savedToken = localStorage.getItem("next-chat-token");
@@ -41,6 +44,7 @@ export default function ChatPage() {
 
         const fetchUserInfo = async () => {
             try {
+                setLoading(true);
                 const res = await fetch(`/api/user/me`, {
                     method: "GET",
                     headers: {
@@ -59,18 +63,22 @@ export default function ChatPage() {
                     return;
                 }
 
+                // ユーザ情報を状態に保存
                 setUserInfo(user);
 
+                // ソケットの初期化
                 const newSocket = getSocket(token);
                 setSocket(newSocket);
             } catch (err) {
                 console.error("ユーザ情報の取得エラー:", err);
                 router.push("/join");
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchUserInfo();
-    }, [token, userId, router]);
+    }, [token, userId, router, setLoading]);
 
     useEffect(() => {
         if (!socket || !room) return;
@@ -107,7 +115,7 @@ export default function ChatPage() {
             socket.off("image");
             socket.off("history");
         };
-    }, [socket, room]);
+    }, [socket, room, setLoading]);
 
     useEffect(() => {
         if (messages.length === 0) return;

@@ -27,7 +27,8 @@
     "socket.io-client": "^4.8.1",
     "ts-node": "^10.9.2",
     "uuid": "^11.1.0",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
