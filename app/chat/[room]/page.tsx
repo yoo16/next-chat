@@ -71,12 +71,17 @@ export default function ChatPage() {
     }, [room, router, token]);
 
     useEffect(() => {
+        console.log("ソケット接続:", socket);
+        console.log("ルーム:", room);
         if (!socket || !room) return;
 
+        // 会話履歴の取得
         socket.emit("get-history", { room });
 
         // ルームに参加
         socket.emit("join-room", { room });
+
+        console.log("履歴取得リクエスト:", room);
 
         // 認証受信
         socket.on("auth", (data: AuthUser) => {

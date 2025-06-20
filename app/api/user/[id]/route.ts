@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import type { NextRequest } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
-export async function GET(
-    req: NextRequest,
-    context: { params: { id: string } }
-) {
-    const token = req.headers.get("Authorization")?.replace("Bearer ", "");
-    if (!token) {
-        return NextResponse.json({ error: "認証トークンが必要です" });
-    }
+const prisma = new PrismaClient();
+
+export async function GET(req: Request, context: { params: { id: string } }) {
+    const token = req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+    const JWT_SECRET = process.env.JWT_SECRET!;
+
     console.log("Received token:", token);
+
+    try {
+        jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+        console.error("JWT verification failed:", err);
+        return NextResponse.json({ error: "認証エラー" });
+    }
 
     const userId = Number(context.params.id);
     if (isNaN(userId)) {
@@ -22,17 +27,11 @@ export async function GET(
         select: {
             id: true,
             name: true,
-            displayName: true,
-            profile: true,
-            image: true,
-            lang: true,
-            createdAt: true,
-            updatedAt: true,
         },
     });
 
     if (!user) {
-        return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
+        return NextResponse.json({ error: "ユーザーが見つかりません" });
     }
 
     return NextResponse.json(user);
