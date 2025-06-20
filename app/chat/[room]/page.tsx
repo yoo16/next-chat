@@ -26,6 +26,7 @@ export default function ChatPage() {
     useEffect(() => {
         const token = localStorage.getItem("next-chat-token");
         const userId = localStorage.getItem("next-chat-user-id");
+
         if (!token || !userId) {
             // トークンがない場合はログイン画面へリダイレクト
             router.push("/join");
@@ -37,6 +38,7 @@ export default function ChatPage() {
         // ユーザー情報の取得
         const fetchUserInfo = async () => {
             try {
+                console.log("ユーザ情報取得リクエスト:", token, userId);
                 const res = await fetch(`/api/user/${userId}`, {
                     method: "GET",
                     headers: {
@@ -45,20 +47,20 @@ export default function ChatPage() {
                     }
                 });
 
-                if (!res.ok) {
+                const user = await res.json();
+                console.log("ユーザ情報取得レスポンス:", user);
+                // ユーザ情報が取得できた場合
+                if (!user) {
+                    console.error("ユーザ情報が取得できませんでした");
                     router.push("/join");
                     return;
                 }
-                const user = await res.json();
-                // ユーザ情報が取得できた場合
-                if (user) {
-                    // ユーザ情報を状態にセット
-                    setUserInfo(user);
+                // ユーザ情報を状態にセット
+                setUserInfo(user);
 
-                    // ソケットの初期化
-                    const newSocket = getSocket(token);
-                    setSocket(newSocket);
-                }
+                // ソケットの初期化
+                const newSocket = getSocket(token);
+                setSocket(newSocket);
             } catch (err) {
                 console.error("ユーザ情報の取得エラー:", err);
                 router.push("/join");

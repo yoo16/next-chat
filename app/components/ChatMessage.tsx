@@ -4,7 +4,7 @@ import ChatImage from './ChatImage';
 import ChatText from './ChatText';
 interface Props {
     message: Message;
-    userId: string;
+    userId: number | string;
 }
 
 function ChatMessage({ message, userId }: Props) {
@@ -13,7 +13,7 @@ function ChatMessage({ message, userId }: Props) {
     return (
         <div className={`flex mb-3`}>
             {image && <ChatImage message={message} />}
-            {message.text && <ChatText message={message} userId={userId} />}
+            {message.text && <ChatText message={message} userId={userId.toString()} />}
         </div>
     )
 }
