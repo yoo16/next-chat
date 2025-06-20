@@ -30,7 +30,7 @@ export default function JoinPage() {
             // チャットページへ遷移
             router.push(`/chat/${room}`);
         } catch (err) {
-            console.error("Join room error:", err);
+            console.log("Join room error:", err);
             setError("ログインに失敗しました");
         }
     };
