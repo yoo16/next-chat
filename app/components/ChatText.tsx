@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function ChatText({ message, user }: Props) {
-    const isOwnMessage = message.userId === user.id;
+    const isOwnMessage = message.userId == user.id;
     const chatStyle = isOwnMessage ? "bg-green-500 text-white" : "bg-gray-100 text-gray-600";
 
     return (
