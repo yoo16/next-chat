@@ -10,13 +10,11 @@ import ChatList from "@/app/components/ChatList";
 import ChatMenu from "@/app/components/ChatMenu";
 import { Message } from "@/app/interfaces/Message";
 import { AuthUser } from "@/app/interfaces/User";
-import { useLoadingStore } from "@/lib/store/loadingStore";
 import { useAuthUser } from "@/app/components/useAuthUser";
 
 export default function ChatPage() {
     const router = useRouter();
     const params = useParams();
-    const { setLoading } = useLoadingStore();
 
     const [socket, setSocket] = useState<Socket | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -63,7 +61,7 @@ export default function ChatPage() {
             socket.off("image");
             socket.off("history");
         };
-    }, [user, socket, room, setLoading]);
+    }, [user, socket, room]);
 
     useEffect(() => {
         if (messages.length === 0) return;
