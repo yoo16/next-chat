@@ -35,7 +35,7 @@ export default function ChatPage() {
         if (!socket || !room) return;
 
         // 会話履歴の取得
-        socket.emit("get-history", { room });
+        // socket.emit("get-history", { room });
 
         // 認証受信
         socket.on("auth", (data: AuthUser) => {
@@ -46,13 +46,33 @@ export default function ChatPage() {
         // ユーザー参加受信
         socket.on("user-joined", (msg: Message) => setMessages(prev => [...prev, msg]));
         // メッセージ受信
-        socket.on("message", (msg: Message) => setMessages(prev => [...prev, msg]));
+        socket.on("message", async (msg: Message) => {
+            console.log("メッセージ受信:", msg);
+            // api/translate へリクエストを送る
+            const res = await fetch("/api/translate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    text: msg.text,
+                    fromLang: "ja",
+                    toLang: "en",
+                }),
+            });
+            // JSONレスポンスを取得
+            const data = await res.json();
+            console.log("翻訳結果:", data);
+            const translated = data.translated || "";
+            // 翻訳結果をメッセージに追加
+            setMessages(prev => [...prev, { ...msg, translated }]);
+        });
         // 画像の受信
         socket.on("image", (msg: Message) => setMessages(prev => [...prev, msg]));
         // 履歴の受信
-        socket.on("history", (msgs: Message[]) => {
-            setMessages(msgs);
-        });
+        // socket.on("history", (msgs: Message[]) => {
+        //     setMessages(msgs);
+        // });
 
         return () => {
             socket.off("auth");

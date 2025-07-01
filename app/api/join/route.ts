@@ -11,6 +11,8 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 const REFRESH_SECRET = process.env.REFRESH_SECRET || "default_refresh_secret";
 
+console.log("JWT_SECRET:", JWT_SECRET);
+console.log("REFRESH_SECRET:", REFRESH_SECRET);
 // アクセストークン（短命）
 function generateAccessToken(payload: { userId: number; name: string }) {
     return jwt.sign(

@@ -17,7 +17,11 @@ export default function ChatText({ message, user }: Props) {
         <div>
             <Sender message={message} />
             <div className={`max-w-xs px-4 py-2 rounded-lg ${chatStyle}`}>
-                {message.text}
+                {isOwnMessage && message.text}
+
+                {!isOwnMessage && message.translated && 
+                    <p className="">{message.translated}</p>
+                }
             </div>
             <span className="text-xs text-gray-400">{message.date && dateFormat(message.date)}</span>
         </div>
