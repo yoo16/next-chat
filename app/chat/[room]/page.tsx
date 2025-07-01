@@ -48,6 +48,10 @@ export default function ChatPage() {
         // メッセージ受信
         socket.on("message", async (msg: Message) => {
             console.log("メッセージ受信:", msg);
+            if (!msg.text || !msg.lang) {
+                setMessages(prev => [...prev, msg]);
+                return;
+            }
             // api/translate へリクエストを送る
             const res = await fetch("/api/translate", {
                 method: "POST",
@@ -56,8 +60,8 @@ export default function ChatPage() {
                 },
                 body: JSON.stringify({
                     text: msg.text,
-                    fromLang: "ja",
-                    toLang: "en",
+                    fromLang: msg.lang,
+                    toLang: user?.lang || "ja-JP",
                 }),
             });
             // JSONレスポンスを取得
@@ -93,9 +97,19 @@ export default function ChatPage() {
 
     // メッセージ送信
     const handleSend = (text: string) => {
-        const sender = user?.name;
-        const message = { text, room, userId, sender, token };
+        const message:Message = { 
+            text, 
+            room, 
+            userId: Number(userId), 
+            sender: user?.name, 
+            token, 
+            lang: user?.lang || "ja-JP",
+        };
+        // ChatServer へメッセージを送信
         socket?.emit("message", message);
+
+        // メッセージをローカルに追加
+        setMessages(prev => [...prev, message]);
     };
 
     // 画像送信

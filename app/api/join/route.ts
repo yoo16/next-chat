@@ -80,5 +80,6 @@ export async function POST(req: Request) {
     return NextResponse.json({
         token: accessToken,
         userId: user.id,
+        lang: user.lang || "ja-JP", // デフォルト言語を設定
     });
 }

@@ -13,7 +13,7 @@ const LogoutHeader = ({ room, user, onLogout }: LogoutHeaderProps) => {
   return (
     <header className="p-4 text-sm flex justify-between items-center">
       <div>
-        <strong>Room {room}</strong> ｜ {user.name} さん
+        <strong>Room {room}</strong> | {user.name} さん | { user.lang }
       </div>
       <button
         className="bg-red-500 text-white text-xs px-3 py-1 rounded hover:bg-red-600"

@@ -4,6 +4,8 @@ export interface Message {
     text: string;
     translated?: string;
     buffer?: ArrayBuffer;
-    sender: string;
+    sender?: string;
     date?: string;
+    token?: string;
+    lang?: string; // 言語コード
 }

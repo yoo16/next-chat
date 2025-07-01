@@ -17,7 +17,7 @@ export default function ChatText({ message, user }: Props) {
         <div>
             <Sender message={message} />
             <div className={`max-w-xs px-4 py-2 rounded-lg ${chatStyle}`}>
-                {isOwnMessage && message.text}
+                {message.text}
 
                 {!isOwnMessage && message.translated && 
                     <p className="">{message.translated}</p>
