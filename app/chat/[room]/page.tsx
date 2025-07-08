@@ -48,7 +48,7 @@ export default function ChatPage() {
         // メッセージ受信
         socket.on("message", async (msg: Message) => {
             console.log("メッセージ受信:", msg);
-            if (!msg.text || !msg.lang) {
+            if (!user?.lang || !msg.lang || user?.lang === msg.lang) {
                 setMessages(prev => [...prev, msg]);
                 return;
             }
@@ -103,8 +103,9 @@ export default function ChatPage() {
             userId: Number(userId), 
             sender: user?.name, 
             token, 
-            lang: user?.lang || "ja-JP",
+            lang: user?.lang || "",
         };
+        console.log("メッセージ送信:", message);
         // ChatServer へメッセージを送信
         socket?.emit("message", message);
 

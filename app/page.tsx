@@ -16,7 +16,7 @@ export default function HomePage() {
                         className="px-6 py-3 bg-sky-600 text-white rounded-xl shadow hover:bg-sky-700 transition">
                         ユーザ登録
                     </Link>
-                    <Link href="/chat"
+                    <Link href="/join"
                         className="px-6 py-3 bg-sky-600 text-white rounded-xl shadow hover:bg-sky-700 transition">
                         チャットに参加
                     </Link>

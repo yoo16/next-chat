@@ -17,6 +17,9 @@ export async function POST(req: NextRequest) {
     if (!text || !fromLang || !toLang) {
         return NextResponse.json({ error: 'パラメータを指定してください' }, { status: 400 });
     }
+    if (fromLang === toLang) {
+        return NextResponse.json({ error: '翻訳元と翻訳先の言語が同じです' }, { status: 400 });
+    }
 
     const prompt = `次の文を${fromLang}から${toLang}に、短く正確に1文だけで翻訳して(エラー、解説、補足は不要)。\n\n"${text}"`;
 
