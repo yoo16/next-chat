@@ -48,28 +48,26 @@ export default function ChatPage() {
         // メッセージ受信
         socket.on("message", async (msg: Message) => {
             console.log("メッセージ受信:", msg);
-            if (!user?.lang || !msg.lang || user?.lang === msg.lang) {
-                setMessages(prev => [...prev, msg]);
-                return;
+
+            // 翻訳
+            if (user?.lang !== msg.lang) {
+                const res = await fetch("/api/translate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        text: msg.text,
+                        fromLang: msg.lang,
+                        toLang: user?.lang,
+                    }),
+                });
+                const data = await res.json();
+                console.log("翻訳結果:", data);
+                // 翻訳結果をメッセージに追加
+                msg.translated = data.translated || "";
             }
-            // api/translate へリクエストを送る
-            const res = await fetch("/api/translate", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    text: msg.text,
-                    fromLang: msg.lang,
-                    toLang: user?.lang || "ja-JP",
-                }),
-            });
-            // JSONレスポンスを取得
-            const data = await res.json();
-            console.log("翻訳結果:", data);
-            const translated = data.translated || "";
-            // 翻訳結果をメッセージに追加
-            setMessages(prev => [...prev, { ...msg, translated }]);
+            setMessages(prev => [...prev, msg]);
         });
         // 画像の受信
         socket.on("image", (msg: Message) => setMessages(prev => [...prev, msg]));
@@ -97,12 +95,12 @@ export default function ChatPage() {
 
     // メッセージ送信
     const handleSend = (text: string) => {
-        const message:Message = { 
-            text, 
-            room, 
-            userId: Number(userId), 
-            sender: user?.name, 
-            token, 
+        const message: Message = {
+            text,
+            room,
+            userId: Number(userId),
+            sender: user?.name,
+            token,
             lang: user?.lang || "",
         };
         console.log("メッセージ送信:", message);

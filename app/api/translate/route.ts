@@ -14,6 +14,14 @@ export async function POST(req: NextRequest) {
 
     console.log('Received translation request:', { text, fromLang, toLang });
 
+    const data = {
+        text,
+        translated: 'Hello, world!', // Placeholder for translation result
+        fromLang,
+        toLang,
+    }
+    return NextResponse.json(data);
+
     if (!text || !fromLang || !toLang) {
         return NextResponse.json({ error: 'パラメータを指定してください' }, { status: 400 });
     }
