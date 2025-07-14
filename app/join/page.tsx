@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import JoinRoomForm from "@/app/components/JoinRoomForm";
 import { useRouter } from "next/navigation";
@@ -14,23 +15,25 @@ export default function JoinRoomPage() {
     const router = useRouter();
     const [error, setError] = useState("");
 
-    const { user, token } = useAuthUser();
-    console.log("Current user:", user);
+    const { user, token, isLoading } = useAuthUser();
 
-    if (!user || !token) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-red-500">ログインが必要です</p>
-            </div>
-        );
+    useEffect(() => {
+        if (!isLoading && (!user || !token)) {
+            router.push("/login");
+        }
+    }, [isLoading, user, token, router]);
+
+    if (isLoading) {
+        return <div className="text-center py-10 text-gray-500">認証を確認中...</div>;
     }
 
-    const handleJoin = (user:User, room: string) => {
-        console.log("Joining room:", { user, room });
-        // 実際の処理に置き換えてください
-        localStorage.setItem("next-chat-room", room);
+    if (!user || !token) {
+        return null; // push 直前、念のため描画抑止
+    }
 
-        // チャットページへ遷移
+    const handleJoin = (user: User, room: string) => {
+        console.log("Joining room:", { user, room });
+        localStorage.setItem("next-chat-room", room);
         router.push(`/chat/${room}`);
     };
 
