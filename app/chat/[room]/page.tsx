@@ -62,10 +62,12 @@ export default function ChatPage() {
                         toLang: user?.lang,
                     }),
                 });
-                const data = await res.json();
-                console.log("翻訳結果:", data);
-                // 翻訳結果をメッセージに追加
-                msg.translated = data.translated || "";
+                if (res.ok) {
+                    // 翻訳結果をメッセージに追加
+                    const data = await res.json();
+                    console.log("翻訳結果:", data);
+                    msg.translated = data.translated || "";
+                }
             }
             setMessages(prev => [...prev, msg]);
         });
