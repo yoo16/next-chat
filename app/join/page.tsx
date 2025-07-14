@@ -1,48 +1,44 @@
 "use client";
-
+import React, { useEffect, useState } from "react";
 import JoinRoomForm from "@/app/components/JoinRoomForm";
-import { useLoadingStore } from "@/lib/store/loadingStore";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useAuthUser } from "../components/useAuthUser";
 
-export default function JoinPage() {
-    const [error, setError] = useState("");
+interface User {
+    id: number;
+    name: string;
+    displayName: string;
+}
+
+export default function JoinRoomPage() {
     const router = useRouter();
-    const { setLoading } = useLoadingStore();
+    const [error, setError] = useState("");
 
-    const handleJoinRoom = async (name: string, password: string, room: string) => {
-        try {
-            setLoading(true);
-            const res = await fetch("/api/join", {
-                method: "POST",
-                body: JSON.stringify({ name, password }),
-                headers: { "Content-Type": "application/json" }
-            });
+    const { user, token } = useAuthUser();
+    console.log("Current user:", user);
 
-            const data = await res.json();
-            if (!res.ok) {
-                setError(data.error);
-                return;
-            }
+    if (!user || !token) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <p className="text-red-500">ログインが必要です</p>
+            </div>
+        );
+    }
 
-            localStorage.setItem("next-chat-user-id", data.userId);
-            localStorage.setItem("next-chat-token", data.token);
-            localStorage.setItem("next-chat-lang", data.lang); // デフォルト言語を設定
-            localStorage.setItem("next-chat-room", room);
+    const handleJoin = (user:User, room: string) => {
+        console.log("Joining room:", { user, room });
+        // 実際の処理に置き換えてください
+        localStorage.setItem("next-chat-room", room);
 
-            // チャットページへ遷移
-            router.push(`/chat/${room}`);
-        } catch (err) {
-            console.log("Join room error:", err);
-            setError("ログインに失敗しました");
-        } finally {
-            setLoading(false);
-        }
+        // チャットページへ遷移
+        router.push(`/chat/${room}`);
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-10">
-            <JoinRoomForm onJoin={handleJoinRoom} error={error} />
-        </div>
+        <JoinRoomForm
+            onJoin={handleJoin}
+            user={user}
+            error={error}
+        />
     );
 }

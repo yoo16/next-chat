@@ -1,7 +1,6 @@
 import React from 'react'
-import Sender from './Sender';
+import Sender from '@/app/components/Sender';
 import { Message } from '@/app/interfaces/Message';
-import { dateFormat } from '@/lib/date';
 import { User } from '@prisma/client';
 
 interface Props {
@@ -15,8 +14,7 @@ export default function ChatText({ message, user }: Props) {
 
     return (
         <div>
-            <span className="p-1 text-sm">{message.sender}</span>
-            <span className="text-xs text-gray-400">{message.date && dateFormat(message.date)}</span>
+            <Sender message={message} />
             <div className={`max-w-xs px-4 py-2 rounded-lg ${chatStyle}`}>
                 {message.text}
 

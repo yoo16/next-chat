@@ -1,43 +1,33 @@
+"use client";
 import React, { useState } from "react";
-import { rooms, RoomOption } from '@/app/data/rooms'
+import { rooms, RoomOption } from "@/app/data/rooms";
+import { useAuthUser } from "./useAuthUser";
+import { User } from "@prisma/client";
 
 interface Props {
-    onJoin: (name: string, password:string, room: string) => void;
+    onJoin: (user:User, room: string) => void;
+    user: User;
     error?: string;
 }
 
-export default function JoinRoomForm({ onJoin, error }: Props) {
-    const [name, setName] = useState("");
-    const [password, setPassword] = useState("");
+export default function JoinRoomForm({ onJoin, user, error, }: Props) {
     const [room, setRoom] = useState(rooms[0].value);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name || !password) {
-            error = "ユーザー名とパスワードを入力してください";
-            return;
-        }
-        onJoin(name, password, room);
+        onJoin(user, room);
     };
 
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow rounded">
             <h2 className="text-2xl font-bold mb-4 text-center">Next Chat</h2>
+
             <form onSubmit={submit} className="flex flex-col gap-4">
-                <input
-                    type="text"
-                    placeholder="ユーザー名"
-                    value={name}
-                    onChange={e => setName(e.currentTarget.value)}
-                    className="px-4 py-2 border rounded"
-                />
-                <input
-                    type="password"
-                    placeholder="パスワード"
-                    value={password}
-                    onChange={e => setPassword(e.currentTarget.value)}
-                    className="px-4 py-2 border rounded"
-                />
+
+                <div className="text-sm text-gray-700">
+                    <span className="font-bold">{user?.name}</span>
+                </div>
+
                 <select
                     value={room}
                     onChange={e => setRoom(e.currentTarget.value)}
@@ -49,10 +39,12 @@ export default function JoinRoomForm({ onJoin, error }: Props) {
                         </option>
                     ))}
                 </select>
-                {error && <div className="text-red-600">{error}</div>}
+
+                {error && <div className="text-red-600 text-sm">{error}</div>}
+
                 <button
                     type="submit"
-                    className="bg-sky-500 text-white px-4 py-2 rounded"
+                    className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600 transition"
                 >
                     Join
                 </button>
