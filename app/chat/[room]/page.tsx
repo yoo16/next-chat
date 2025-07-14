@@ -49,26 +49,7 @@ export default function ChatPage() {
         socket.on("message", async (msg: Message) => {
             console.log("メッセージ受信:", msg);
 
-            // 翻訳
-            if (user?.lang !== msg.lang) {
-                const res = await fetch("/api/translate", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        text: msg.text,
-                        fromLang: msg.lang,
-                        toLang: user?.lang,
-                    }),
-                });
-                if (res.ok) {
-                    // 翻訳結果をメッセージに追加
-                    const data = await res.json();
-                    console.log("翻訳結果:", data);
-                    msg.translated = data.translated || "";
-                }
-            }
+
             setMessages(prev => [...prev, msg]);
         });
         // 画像の受信
@@ -112,6 +93,7 @@ export default function ChatPage() {
         // メッセージをローカルに追加
         setMessages(prev => [...prev, message]);
     };
+
 
     // 画像送信
     const handleSendImage = (file: File) => {

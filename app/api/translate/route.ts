@@ -16,11 +16,11 @@ export async function POST(req: NextRequest) {
 
     // const data = {
     //     text,
-    //     translated: 'Hello, world!', // Placeholder for translation result
+    //     translated: 'Hello, everyone!',
     //     fromLang,
     //     toLang,
     // }
-    // return NextResponsejson(data);
+    // return NextResponse.json(data);
 
     if (!text || !fromLang || !toLang) {
         return NextResponse.json({ error: 'パラメータを指定してください' }, { status: 400 });

@@ -1,88 +1,37 @@
 "use client";
+
 import React, { FormEvent, useState, ChangeEvent, useRef } from "react";
 import Image from "next/image";
+import { useSpeechRecognition } from "@/app/hooks/useSpeechRecognition";
 
 type ChatFormProps = {
     onSend: (message: string) => void;
     onSendImage: (imageFile: File) => void;
 };
 
-// Add global declarations for SpeechRecognition types
-declare global {
-    interface Window {
-        SpeechRecognition: any;
-        webkitSpeechRecognition: any;
-    }
-}
-
-type SpeechRecognition = typeof window.SpeechRecognition | typeof window.webkitSpeechRecognition;
-type SpeechRecognitionInstance = InstanceType<ReturnType<() => SpeechRecognition>>;
-
 const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
     const [text, setText] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
-    const [listening, setListening] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const recognitionRef = useRef<SpeechRecognition | null>(null);
+    // 音声認識
+    const { listening, toggleListening } = useSpeechRecognition((transcript) => {
+        setText((prev) => prev + transcript);
+    });
 
-    // 音声認識の初期化
-    const initRecognition = () => {
-        const SpeechRecognition =
-            (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("このブラウザは音声認識に対応していません。");
-            return null;
-        }
-
-        const lang = localStorage.getItem("next-chat-lang") || "";
-
-        const recognition = new SpeechRecognition();
-        recognition.lang = lang;
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        recognition.onresult = (event: SpeechRecognition) => {
-            const transcript = event.results[0][0].transcript;
-            setText(prev => prev + transcript);
-        };
-
-        recognition.onstart = () => setListening(true);
-        recognition.onend = () => setListening(false);
-        recognition.onerror = (event: SpeechRecognitionResultList) => {
-            setListening(false);
-        };
-
-        return recognition;
-    };
-
-    const handleVoiceInput = () => {
-        if (!recognitionRef.current) {
-            recognitionRef.current = initRecognition();
-        }
-
-        if (recognitionRef.current) {
-            if (listening) {
-                recognitionRef.current.stop();
-            } else {
-                recognitionRef.current.start();
-            }
-        }
-    };
-
-    function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         setText(e.target.value);
-    }
+    };
 
-    function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null;
         if (!file) return;
         setImage(file);
         setPreview(URL.createObjectURL(file));
-    }
+    };
 
-    function handleCancelImage() {
+    const handleCancelImage = () => {
         if (!preview) return;
         URL.revokeObjectURL(preview);
         setPreview(null);
@@ -90,9 +39,9 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
-    }
+    };
 
-    function handleSubmit(e: FormEvent) {
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
         if (text.trim()) {
@@ -111,7 +60,7 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
                 }
             }
         }
-    }
+    };
 
     return (
         <div className="p-4 rounded-lg shadow-md">
@@ -146,16 +95,15 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
                     />
                     <button
                         type="submit"
-                        className="px-3 py-2 text-white bg-sky-500 rounded-lg hover:bg-sky-600 transition duration-200"
+                        className="px-3 py-2 text-white bg-green-500 rounded-lg hover:bg-green-600 transition duration-200"
                     >
                         Send
                     </button>
                     <button
                         type="button"
-                        onClick={handleVoiceInput}
-                        className={`px-3 py-2 rounded-lg border ${
-                            listening ? "bg-red-100 border-red-400" : "bg-white border-gray-300"
-                        } hover:bg-gray-50 transition`}
+                        onClick={toggleListening}
+                        className={`px-3 py-2 rounded-lg border ${listening ? "bg-red-100 border-red-400" : "bg-white border-gray-300"
+                            } hover:bg-gray-50 transition`}
                         title="音声入力"
                     >
                         🎤
