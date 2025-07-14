@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 export function useAuthUser() {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true); // ← 追加
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const token = localStorage.getItem("next-chat-token");

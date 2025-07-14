@@ -20,7 +20,7 @@ export default function ChatPage() {
     const [messages, setMessages] = useState<Message[]>([]);
 
     const room = typeof params.room === "string" ? params.room : "";
-    const { user, token, userId } = useAuthUser();
+    const { user, token } = useAuthUser();
 
     useEffect(() => {
         if (!user || !token) return;
@@ -100,9 +100,9 @@ export default function ChatPage() {
         const message: Message = {
             text,
             room,
-            userId: Number(userId),
+            userId: user?.id,
             sender: user?.name,
-            token,
+            token: token || "",
             lang: user?.lang || "",
         };
         console.log("メッセージ送信:", message);
@@ -119,7 +119,7 @@ export default function ChatPage() {
         const sender = user?.name;
         reader.onload = () => {
             const buffer = reader.result as ArrayBuffer;
-            const message = { buffer, room, userId, sender, token };
+            const message = { buffer, room, userId: user?.id, sender, token: token || "" };
             socket?.emit("image", message);
         };
         reader.readAsArrayBuffer(file);
