@@ -22,7 +22,7 @@ export default function NavBar() {
                 <Link href="/join" className={linkClass("/join")}>
                     チャットに参加
                 </Link>
-                <Link href="/user" className={linkClass("/regist")}>
+                <Link href="/user" className={linkClass("/user")}>
                     ユーザ情報
                 </Link>
             </div>

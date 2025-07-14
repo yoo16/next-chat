@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { languages } from '@/data/langs';
 
 export default function EditUserForm({ user }: { user: any }) {
+    const [message, setMessage] = useState('');
     const [formData, setFormData] = useState({
         name: user.name,
         displayName: user.displayName || '',
@@ -23,24 +24,22 @@ export default function EditUserForm({ user }: { user: any }) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const form = new FormData();
-        form.append('name', formData.name);
-        form.append('displayName', formData.displayName);
-        form.append('profile', formData.profile);
-        form.append('lang', formData.lang);
-        if (formData.image) {
-            form.append('image', formData.image); // File を送信
-        }
+        const token = localStorage.getItem("next-chat-token"); 
+        console.log(token)
 
-        const res = await fetch(`/user/${user.id}/edit/update`, {
+        const res = await fetch('/api/user/update', {
             method: 'POST',
-            body: form,
+            headers: {
+                Authorization: `Bearer ${token}`, 
+            },
+            body: JSON.stringify({ ...formData, }),
         });
 
+        const result = await res.json();
         if (res.ok) {
-            router.push(`/user/${user.id}`);
+            setMessage('更新に成功しました ');
         } else {
-            alert('更新に失敗しました');
+            setMessage('更新に失敗しました ');
         }
     };
 
@@ -110,12 +109,17 @@ export default function EditUserForm({ user }: { user: any }) {
                 />
             </div>
 
+            <div>
+                {message && (
+                    <p className="text-green-600 p-4 rounded">{message}</p>
+                )}
+            </div>
             <div className="flex justify-center gap-4 mt-6">
                 <button type="submit" className="bg-sky-500 text-white px-6 py-2 rounded hover:bg-blue-600">
                     保存
                 </button>
-                <a href={`/user/${user.id}`} className="px-6 py-2 border rounded text-blue-500 hover:bg-gray-100">
-                    キャンセル
+                <a href="/user/" className="px-6 py-2 border rounded text-blue-500 hover:bg-gray-100">
+                    もどる
                 </a>
             </div>
 
