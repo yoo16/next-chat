@@ -63,7 +63,7 @@ const ChatForm = ({ onSend, onSendImage }: ChatFormProps) => {
     };
 
     return (
-        <div className="p-4 rounded-lg shadow-md">
+        <div className="p-10 rounded-lg shadow-md">
             {preview && (
                 <div className="flex justify-center p-6">
                     <div>

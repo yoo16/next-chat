@@ -11,5 +11,9 @@ export const languages: LangOption[] = [
     { code: 'de-DE', label: 'German' },
     { code: 'zh-CN', label: 'Chinese' },
     { code: 'vi-VN', label: 'Vietnamese' },
-    // 必要に応じて追加
+    { code: 'ne-NP', label: 'Nepali' },
+    { code: 'mn-MN', label: 'Mongolian' },
+    { code: 'my-MM', label: 'Burmese' },
+    { code: 'id-ID', label: 'Indonesian' },
+    { code: 'si-LK', label: 'Sinhalese' },
 ];
