@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { rooms, RoomOption } from "@/app/data/rooms";
-import { useAuthUser } from "./useAuthUser";
+import { useAuthUser } from "../hooks/useAuthUser";
 import { User } from "@prisma/client";
 
 interface Props {

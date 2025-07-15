@@ -1,7 +1,7 @@
 'use client';
 
 import EditUserForm from '@/app/components/EditUser';
-import { useAuthUser } from '@/app/components/useAuthUser';
+import { useAuthUser } from '@/app/hooks/useAuthUser';
 
 export default function EditUserPage() {
     const { user, token, userId } = useAuthUser();

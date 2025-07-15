@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import JoinRoomForm from "@/app/components/JoinRoomForm";
 import { useRouter } from "next/navigation";
-import { useAuthUser } from "../components/useAuthUser";
+import { useAuthUser } from "../hooks/useAuthUser";
 
 interface User {
     id: number;

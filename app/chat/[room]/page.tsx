@@ -10,7 +10,7 @@ import ChatList from "@/app/components/ChatList";
 import ChatMenu from "@/app/components/ChatMenu";
 import { Message } from "@/app/interfaces/Message";
 import { AuthUser } from "@/app/interfaces/User";
-import { useAuthUser } from "@/app/components/useAuthUser";
+import { useAuthUser } from "@/app/hooks/useAuthUser";
 
 export default function ChatPage() {
     const router = useRouter();

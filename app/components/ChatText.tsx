@@ -63,19 +63,21 @@ export default function ChatText({ message, user }: Props) {
             <div className={`max-w-xs px-4 py-2 rounded-lg ${chatStyle}`}>
                 {message.text}
                 {!isOwnMessage && message.lang &&
-                    <div>
+                    <div className="my-2">
                         <button
                             onClick={handleSpeak}
-                            className="p-2 text-white border rounded bg-sky-400"
+                            className="p-2 text-white border rounded bg-gray-400"
                         >
                             <FiVolume2 className="w-4 h-4" />
                         </button>
-                        <button
-                            onClick={handleTranslate}
-                            className="p-2 ml-2 border rounded text-white bg-sky-400"
-                        >
-                            <MdTranslate className="w-4 h-4" />
-                        </button>
+                        {!translated &&
+                            <button
+                                onClick={handleTranslate}
+                                className="p-2 ml-2 border rounded text-white bg-gray-400"
+                            >
+                                <MdTranslate className="w-4 h-4" />
+                            </button>
+                        }
                         {translated &&
                             <p className="py-2 text-gray-600 font-bold">{translated}</p>
                         }

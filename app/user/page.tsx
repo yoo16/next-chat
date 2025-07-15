@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { User } from "@prisma/client";
 import { useEffect, useState } from "react";
-import { useAuthUser } from "@/app/components/useAuthUser";
+import { useAuthUser } from "@/app/hooks/useAuthUser";
 import { useRouter } from "next/navigation";
 
 export default function UserPage() {
