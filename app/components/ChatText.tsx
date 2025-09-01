@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Sender from '@/app/components/Sender';
 import { Message } from '@/app/interfaces/Message';
 import { User } from '@prisma/client';
@@ -13,9 +13,11 @@ interface Props {
 export default function ChatText({ message, user }: Props) {
     const isOwnMessage = message.userId == user.id;
     const chatStyle = isOwnMessage ? "bg-sky-500 text-white" : "bg-gray-100 text-gray-600";
-    const [translated, setTranslated] = React.useState<string>("");
+    const [translated, setTranslated] = useState<string>("");
+    const [isTranslate, setIsTranslate] = useState<boolean>(false);
 
     const handleTranslate = async () => {
+        if (!isTranslate) return;
         if (!message.text || !message.lang) return;
         if (user?.lang !== message.lang) {
             const data = {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { getSocket } from "@/lib/socketClient";
 import { useRouter, useParams } from "next/navigation";
 import { Socket } from "socket.io-client";
@@ -15,120 +15,122 @@ import { useAuthUser } from "@/app/hooks/useAuthUser";
 export default function ChatPage() {
     const router = useRouter();
     const params = useParams();
-
-    const [socket, setSocket] = useState<Socket | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
-
     const room = typeof params.room === "string" ? params.room : "";
-    const { user, token } = useAuthUser();
 
+    const { user, token, isLoading } = useAuthUser();
+
+    const [socket, setSocket] = React.useState<Socket | null>(null);
+    const [messages, setMessages] = React.useState<Message[]>([]);
+
+    // ---- 認証チェック & ソケット初期化 ----
     useEffect(() => {
-        if (!user || !token) return;
-        // ソケットの初期化
-        const newSocket = getSocket(token);
-        setSocket(newSocket);
-        // ルームに参加
-        newSocket.emit("join-room", { room });
-    }, [user, token, room]);
+        if (isLoading) return;
+        if (!user || !token) {
+            router.replace("/join");
+            return;
+        }
+        const s = getSocket(token);
+        setSocket(s);
+        s.emit("join-room", { room });
 
+        return () => {
+            s.off("auth");
+            s.off("user-joined");
+            s.off("message");
+            s.off("image");
+            s.off("history");
+            s.disconnect();
+        };
+    }, [isLoading, user, token, room, router]);
+
+    // ---- ソケットイベント購読 ----
     useEffect(() => {
         if (!socket || !room) return;
 
-        // 会話履歴の取得
-        // socket.emit("get-history", { room });
-
-        // 認証受信
-        socket.on("auth", (data: AuthUser) => {
+        const onAuth = (data: AuthUser) => {
             if (!data) return;
             console.log("認証成功:", data);
-        });
-
-        // ユーザー参加受信
-        socket.on("user-joined", (msg: Message) => setMessages(prev => [...prev, msg]));
-        // メッセージ受信
-        socket.on("message", async (msg: Message) => {
+        };
+        const onJoined = (msg: Message) => setMessages(prev => [...prev, msg]);
+        const onMessage = (msg: Message) => {
             console.log("メッセージ受信:", msg);
-
-
             setMessages(prev => [...prev, msg]);
-        });
-        // 画像の受信
-        socket.on("image", (msg: Message) => setMessages(prev => [...prev, msg]));
-        // 履歴の受信
-        // socket.on("history", (msgs: Message[]) => {
-        //     setMessages(msgs);
-        // });
+        };
+        const onImage = (msg: Message) => setMessages(prev => [...prev, msg]);
+
+        socket.on("auth", onAuth);
+        socket.on("user-joined", onJoined);
+        socket.on("message", onMessage);
+        socket.on("image", onImage);
+        // 履歴を使うなら:
+        // socket.emit("get-history", { room });
+        // socket.on("history", (msgs: Message[]) => setMessages(msgs));
 
         return () => {
-            socket.off("auth");
-            socket.off("user-joined");
-            socket.off("message");
-            socket.off("image");
+            socket.off("auth", onAuth);
+            socket.off("user-joined", onJoined);
+            socket.off("message", onMessage);
+            socket.off("image", onImage);
             socket.off("history");
         };
-    }, [user, socket, room]);
+    }, [socket, room]);
 
+    // ---- 自動スクロール ----
     useEffect(() => {
         if (messages.length === 0) return;
-        window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: "smooth",
-        });
+        window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
     }, [messages]);
 
-    // メッセージ送信
+    // ---- 送信 ----
     const handleSend = (text: string) => {
+        if (!user || !token || !socket) return;
+
         const message: Message = {
             text,
             room,
-            userId: user?.id,
-            sender: user?.name,
-            token: token || "",
-            lang: user?.lang || "",
+            userId: user.id,
+            sender: user.name,
+            token,
+            lang: user.lang || "",
         };
-        console.log("メッセージ送信:", message);
-        // ChatServer へメッセージを送信
-        socket?.emit("message", message);
-
-        // メッセージをローカルに追加
+        socket.emit("message", message);
         setMessages(prev => [...prev, message]);
     };
 
-
-    // 画像送信
     const handleSendImage = (file: File) => {
+        if (!user || !token || !socket) return;
+
         const reader = new FileReader();
-        const sender = user?.name;
         reader.onload = () => {
             const buffer = reader.result as ArrayBuffer;
-            const message = { buffer, room, userId: user?.id, sender, token: token || "" };
-            socket?.emit("image", message);
+            const message = { buffer, room, userId: user.id, sender: user.name, token };
+            socket.emit("image", message);
         };
         reader.readAsArrayBuffer(file);
     };
 
-    // ログアウト
     const handleLogout = () => {
-        if (!confirm("ログアウトしますか？")) {
-            return;
-        }
-        // ローカルストレージ削除
+        if (!confirm("ログアウトしますか？")) return;
+
         localStorage.removeItem("next-chat-user-id");
         localStorage.removeItem("next-chat-token");
         localStorage.removeItem("next-chat-room");
 
-        // 状態のリセット
         setMessages([]);
-        setSocket(null);
+        setSocket(prev => {
+            prev?.disconnect();
+            return null;
+        });
 
-        // ソケット切断
-        if (socket) {
-            socket.disconnect();
-        }
-        // ログイン画面へリダイレクト
         router.push("/join");
     };
 
+    // ローディング中のプレースホルダ（isReady になるまで表示）
+    if (isLoading) {
+        return <div className="p-6 text-gray-500">読み込み中…</div>;
+    }
+
+    // 認証済みでない場合は useEffect が /join に飛ばすのでここには来ない
     return (
         <div>
             {user && <ChatMenu room={room} user={user} onLogout={handleLogout} />}
